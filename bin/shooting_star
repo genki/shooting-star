@@ -1,0 +1,70 @@
+#!/usr/bin/env ruby
+require 'optparse'
+
+$:.unshift File.join(File.dirname(__FILE__), '../lib')
+$:.unshift File.join(File.dirname(__FILE__), '../ext')
+require 'shooting_star'
+
+# define options
+$command_line = "#{$0} #{ARGV.join(' ')}"
+OPT = {}
+opt = OptionParser.new
+opt.on('-f <config file>'){|v| OPT[:config] = v}
+opt.on('-g', 'debug mode.'){$debug = true}
+opt.on('-s', 'silent mode.'){OPT[:silent] = true}
+subopt = Hash.new{|h,k| $stderr.puts "no such subcommand: #{k}."; exit 1}
+subopt['init'] = OptionParser.new do |cmd|
+  cmd.banner = ['Usage:', cmd.program_name, 'init [options]'].join(' ')
+  cmd.on('-d <base dir>', 'ShootingStarize directory.'){|v| OPT[:directory] = v}
+end
+subopt['start'] = OptionParser.new do |cmd|
+  cmd.banner = ['Usage:', cmd.program_name, 'start [options]'].join(' ')
+  cmd.on('-d', 'daemon mode.'){OPT[:daemon] = true}
+end
+subopt['stop'] = OptionParser.new do |cmd| end
+subopt['restart'] = OptionParser.new do |cmd| end
+subopt['stat'] = OptionParser.new do |cmd|
+  cmd.banner = ['Usage:', cmd.program_name, 'stat [options]'].join(' ')
+  cmd.on('-u', 'with uid.'){OPT[:with_uid] = true}
+  cmd.on('-s', 'with signature.'){OPT[:with_sig] = true}
+end
+opt.on_tail('-v', '--version', 'Show version.'){puts opt.ver; exit}
+opt.on_tail('-h', '--help', 'Show this message.') do
+  opt.banner = "  " + ['Usage:', opt.program_name,
+    "{#{subopt.keys.sort.join('|')}}", '[options]'].join(' ') + "\n\n"
+  puts "#{'-'*opt.ver.length}\n#{opt.ver}\n#{'-'*opt.ver.length}"
+  puts opt.help
+  subopt.keys.sort.each do |key| cmd = subopt[key]
+    next if cmd.to_a.size <= 1
+    cmd.banner = "\n  Options for subcommand `#{key}':\n"
+    puts cmd.help
+  end; exit
+end
+
+# parse options
+Version = ShootingStar::VERSION
+opt.order!(ARGV)
+CMD = ARGV.shift
+begin
+  subopt[CMD].parse!(ARGV) unless ARGV.empty?
+rescue OptionParser::InvalidOption => e
+  puts e.message; exit
+end
+ShootingStar.configure(OPT)
+OPT[:daemon] = true if CMD == 'restart'
+
+# execute
+case CMD
+when "init"
+  ShootingStar.init
+when "start"
+  ShootingStar.start
+when "stop"
+  ShootingStar.stop
+when "restart"
+  ShootingStar.restart
+when "stat"
+  ShootingStar.report
+else
+  puts `#{$0} --help`
+end

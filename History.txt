@@ -1,0 +1,42 @@
+*** 1.0.3 / 2007-03-22
++ 2 major enhancements:
+  + Rails plugin is installed when shooting_star init.
+  + Implemented logging.
++ 1 major bug fix:
+  + Fixed execution queuing and flashing.
++ 3 minor enhancements:
+  + Suppressed warnings reported while installing gem.
+  + Added simple documentation.
+  + Independent from pthread.
++ 1 minor bug fix:
+  + encodeURIComponent() is used for escaping tag list instead of escape().
+
+*** 1.0.2 / 2007-03-16
++ 1 major enhancement:
+  + Separated notification by tag grouping.
+  
+*** 1.0.1 / 2007-03-12
++ 2 major enhancements:
+  + Corrected management of sessions.
+  + Added implementation using kqueue (Thank you Takanori Ishikawa!)
+
+*** 1.0.0 / 2007-03-09
++ 1 major enhancement:
+  + Supported tags in order to handle various events via single connection.
+
+*** 1.0.0 / 2007-02-27
++ 2 major enhancements:
+  + Added the ruby extension named Asteroid which is socket manager using epoll.
+  + Merged gem and rails app for testing.
+
+*** 0.0.3 / 2006-11-18
++ 2 major enhancements:
+  + Added function to initialize directory.
+  + Changed status code of execution response from 200 to 201.
++ 1 minor enhancements:
+  + Exploited better algorithm for reconnection.
+
+*** 0.0.2 / 2006-11-04
++ 2 major enhancements:
+  + Supported install_gem task.
+  + Converted Rakefile+gemspec to Hoe-based Rakefile.

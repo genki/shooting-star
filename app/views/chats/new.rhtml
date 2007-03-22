@@ -1,0 +1,11 @@
+<% form_remote_tag(:url => chats_path, :after => %Q{
+      $('chat_message').value = '';
+      $('chat_message').focus();
+    }) do %>
+  <%= text_field_tag :chat_name, session[:name],
+    :class => session[:name] ? 'ram' : 'rom' %>
+  <%= text_field_tag :chat_message, '', :size => 100 %>
+  <%= text_field_tag :chat_tag, (session[:tags] || []).join(' '),
+    :class => session[:tags] ? 'ram' : 'rom' %>
+  <%= submit_tag "Submit" %>
+<% end %>

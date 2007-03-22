@@ -1,0 +1,23 @@
+<div id="post">
+  <%= render_component :controller => 'chats', :action => 'new' %>
+</div>
+<div id="user-list">
+  <span id="user_list">
+  <%= render_component :controller => 'chats', :action => 'user_list' %>
+  </span>
+</div>
+
+<ul id="chat-list">
+  <% @chats.each do |chat| %>
+    <%= render_component :controller => 'chats',
+          :action => 'show', :id => chat.id %>
+  <% end %>
+</ul>
+
+<%=
+meteor_strike "simple_chat/chatroom",
+  :uid => session[:name], :tag => session[:tags],
+  :event => remote_function(:update => 'user_list',
+    :url => {:controller => 'chats', :action => 'user_list'},
+    :after => %Q[new Effect.Highlight("user-list", {queue: 'end'})])
+%>

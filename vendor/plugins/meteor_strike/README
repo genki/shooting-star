@@ -1,0 +1,50 @@
+MeteorStrike
+============
+  by Genki Takiuchi <takiuchi@drecom.co.jp>
+
+This plugin provides an implementation of comet client corresponding to
+comet server named ShootingStar.
+
+INSTALL:
+  You need to configure this plugin by database.yml like this;
+
+  development:
+    database: db/development.sqlite3
+    timeout: 5000
+    shooting_star:
+      server: 127.0.0.1:8080
+      shooter: druby://localhost:7123
+
+  server is the host serving comet which is accessed from client browser.
+  shooter is the URI serving druby object which is accessed from Rails
+  application.
+
+  In order to keep security, shooter should be private address.
+
+USAGE:
+  In the view rhtml file, you can connect to the server by calling one helper
+  method below:
+
+  <%=
+  meteor_strike 'channel/name',
+    :uid => user_identifier,
+    :tag => [tag1, tag2],
+    :event => %Q{
+      switch(params.event){
+      case 'enter':
+        /* params.uid is entered to the channel with params.tag */
+        break;
+      case 'leave':
+        /* params.uid is left from the channel with params.tag */
+        break;
+      case 'update':
+        /* params.uid is updated status in the channel */
+        break;
+      }
+    }
+  %>
+
+  Second parameter is optional.
+  :uid should be unique number or string which identifing user.
+  :tag acts as sub-channel.
+  :event is a javascript handling events from server.

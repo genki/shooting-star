@@ -1,0 +1,36 @@
+html, body, form { margin: 0px }
+html, body, form { padding: 0px }
+body { background-color: #fff }
+body { color: #333 }
+
+#post { padding: 10px }
+#post { text-align: center }
+#post { background-color: #600 }
+#post input { border: 0px }
+#post input { vertical-align: middle }
+#chat_name { width: 100px }
+#chat_name { text-align: center }
+#chat_name.ram { background-color: #c88 }
+#chat_message { width: 400px }
+#chat_tag { width: 100px }
+#chat_tag.ram { background-color: #c88 }
+
+#user-list { color: #fcc }
+#user-list { font-family: "Times New Roman", Times, Serif }
+#user-list { padding: 0px 10px 0px 10px }
+#user-list { background-color: #500 }
+
+#chat-list { list-style: none }
+#chat-list { margin: 0px }
+#chat-list { padding: 0px }
+#chat-list li { clear: both }
+#chat-list li { padding: 3px 0px 0px 0px }
+#chat-list li p { padding: 0px 0px 0px 10px }
+#chat-list li p { margin: 0px }
+#chat-list li p.name { float: left }
+#chat-list li p.name { text-align: right }
+#chat-list li p.name { width: 100px }
+#chat-list li p.message { float: left }
+#chat-list li p.time { float: left }
+#chat-list li p.time { color: #888 }
+#chat-list li p.time { font-size: xx-small }

@@ -1,0 +1,32 @@
+<h1>Editing chat</h1>
+
+<%= error_messages_for :chat %>
+
+<% form_for(:chat, :url => chat_path(@chat), :html => { :method => :put }) do |f| %>
+  <p>
+    <b>Name</b><br />
+    <%= f.text_field :name %>
+  </p>
+
+  <p>
+    <b>Message</b><br />
+    <%= f.text_area :message %>
+  </p>
+
+  <p>
+    <b>Password</b><br />
+    <%= f.text_field :password %>
+  </p>
+
+  <p>
+    <b>Created at</b><br />
+    <%= f.datetime_select :created_at %>
+  </p>
+
+  <p>
+    <%= submit_tag "Update" %>
+  </p>
+<% end %>
+
+<%= link_to 'Show', chat_path(@chat) %> |
+<%= link_to 'Back', chats_path %>

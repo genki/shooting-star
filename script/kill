@@ -1,0 +1,2 @@
+PID=`netstat -l -n -p | grep 4000 | ruby -e "puts ARGF.gets.split(/\s+/)[6].split('/')[0]"`
+kill -9 $PID
