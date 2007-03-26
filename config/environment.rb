@@ -57,4 +57,17 @@ end
 # Mime::Type.register "text/richtext", :rtf
 # Mime::Type.register "application/x-mobile", :mobile
 
+# output response header to log
+module ActionController
+  class CgiResponse
+    def out_with_logging_extra_information(output)
+      out_without_logging_extra_information(output)
+      RAILS_DEFAULT_LOGGER.debug @cgi.header(@headers).chomp.chomp
+      #RAILS_DEFAULT_LOGGER.debug @cgi.send(:env_table).sort.inspect
+    end
+    alias_method_chain :out, :logging_extra_information
+  end
+end
+
 # Include your application configuration below
+

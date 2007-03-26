@@ -1,6 +1,8 @@
 *** 1.0.4 / 2007-03-24
 + 1 major enhancement:
   + Cached rendering result of meteor/strike.
++ 1 minor enhancement:
+  + Disabled caching when back.
 + 1 minor bugfix:
   + Solved problem on caching of browsers of MacOS.
 

@@ -4,6 +4,14 @@ require 'md5'
 module MeteorStrike
   module Helper
     def meteor_strike(channel, options = {})
+      unless options[:cache] || @meteor_strike
+        cc = controller.headers['Cache-Control'] || ''
+        cc += ', ' unless cc.empty?
+        cc += 'no-store, no-cache, must-revalidate, max-age=0, '
+        cc += 'post-check=0, pre-check=0'
+        controller.headers['Cache-Control'] = cc
+        @meteor_strike = true
+      end
       config = ActiveRecord::Base.configurations[RAILS_ENV]
       shooting_star_uri = "#{config['shooting_star']['server']}/#{channel}"
       uri = url_for(:only_path => false).split('/')[0..2].join('/')
