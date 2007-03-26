@@ -148,9 +148,6 @@ module ShootingStar
         (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
       @executing = @@executings[@signature] ||= Hash.new
       @@servers[@signature] = self
-      # make uncacheable path
-      @timestamp = ShootingStar::timestamp
-      path += (path.index('?') ? '&' : '?') + "timestamp=#{@timestamp}"
       @query = "channel=#{@channel}&sig=#{@signature}"
       # prepare channel
       unless Channel[@channel]

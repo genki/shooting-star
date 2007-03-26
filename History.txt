@@ -1,3 +1,9 @@
+*** 1.0.4 / 2007-03-24
++ 1 major enhancement:
+  + Cached rendering result of meteor/strike.
++ 1 minor bugfix:
+  + Solved problem on caching of browsers of MacOS.
+
 *** 1.0.3 / 2007-03-22
 + 2 major enhancements:
   + Rails plugin is installed when shooting_star init.

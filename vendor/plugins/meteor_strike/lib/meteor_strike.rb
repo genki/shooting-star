@@ -44,7 +44,8 @@ module MeteorStrike
         };
         setTimeout(function(){ 
           var iframe = document.createElement('iframe');
-          iframe.src = "#{base_uri}&uid=#{uid}&tag=#{tag}&sig=#{sig}";
+          iframe.src = ["#{base_uri}&uid=#{uid}&tag=#{tag}&sig=#{sig}",
+            '&__ts__=', new Number(new Date()).toString(32)].join('');
           iframe.frameborder = "0";
           iframe.width = "0";
           iframe.height = "0";

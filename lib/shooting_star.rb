@@ -7,7 +7,7 @@ require 'shooting_star/config'
 require 'shooting_star/shooter'
 
 module ShootingStar
-  VERSION = '1.0.3'
+  VERSION = '1.0.4'
   CONFIG = Config.new(
     :config => 'config/shooting_star.yml',
     :pid_file => 'log/shooting_star.pid',
