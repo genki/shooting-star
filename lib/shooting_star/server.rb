@@ -172,13 +172,14 @@ module ShootingStar
 
     # add execution line to the buffer.
     def execute(id, params)
+      sweep_timeout = ShootingStar::CONFIG.sweep_timeout || 500_000
       @executing[id] = params
       @query += "&" + FormEncoder.encode(params) if params
       @execution += <<-"EOH"
       (function(){
         var iframe = document.createElement('iframe');
         var remove = function(){document.body.removeChild(iframe)};
-        var timer = setTimeout(remove, 10000);
+        var timer = setTimeout(remove, #{sweep_timeout});
         iframe.onload = function(){clearTimeout(timer); setTimeout(remove, 0)};
         document.body.appendChild(iframe);
         iframe.src = '#{@params['execute']}/#{id}?#{@query}';

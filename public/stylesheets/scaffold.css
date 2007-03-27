@@ -31,6 +31,5 @@ body { color: #333 }
 #chat-list li p.name { text-align: right }
 #chat-list li p.name { width: 100px }
 #chat-list li p.message { float: left }
-#chat-list li p.time { float: left }
-#chat-list li p.time { color: #888 }
-#chat-list li p.time { font-size: xx-small }
+#chat-list li span.time { color: #888 }
+#chat-list li span.time { font-size: xx-small }

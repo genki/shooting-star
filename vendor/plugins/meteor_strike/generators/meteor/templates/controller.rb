@@ -1,7 +1,7 @@
 class MeteorController < ApplicationController
   layout nil
   caches_action :strike
-  after_filter :notify_execution, :only => :strike
+  after_filter :notify_execution, :only => [:strike]
 
   def strike
     @channel = params[:channel].split('/').map{|i| CGI.escape(i)}.join('/')
@@ -22,6 +22,7 @@ class MeteorController < ApplicationController
 
   def sweep
     Meteor.shooter.sweep
+    render :nothing => true
   end
 
 private
