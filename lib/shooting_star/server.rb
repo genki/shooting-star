@@ -178,8 +178,8 @@ module ShootingStar
         var iframe = document.createElement('iframe');
         var remove = function(){document.body.removeChild(iframe)};
         iframe.onload = function(){setTimeout(remove, 0)};
-        iframe.src = '#{@params['execute']}/#{id}?#{@query}';
         document.body.appendChild(iframe);
+        iframe.src = '#{@params['execute']}/#{id}?#{@query}';
       })();
       EOH
     end
