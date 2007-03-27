@@ -23,6 +23,9 @@ class MeteorGenerator < Rails::Generator::NamedBase
       m.template 'functional_test.rb',
         File.join('test/functional', class_path, "#{controller_file}_test.rb")
 
+      m.template 'helper.rb',
+        File.join('app/helpers', class_path, "#{file_name}_helper.rb")
+
       m.file 'view.rhtml',
         File.join('app/views', class_path, "#{file_name}/strike.rhtml")
 

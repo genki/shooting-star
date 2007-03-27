@@ -172,7 +172,7 @@ module ShootingStar
     # add execution line to the buffer.
     def execute(id, params)
       @executing[id] = params
-      @query += "&" +FormEncoder.encode(params) if params
+      @query += "&" + FormEncoder.encode(params) if params
       @execution += <<-"EOH"
       (function(){
         var iframe = document.createElement('iframe');
@@ -195,8 +195,7 @@ module ShootingStar
       //<![CDATA[
       var connect = function()
       { var request = new Ajax.Request(
-          #{path.to_json}, {method: 'post', evalScript: true,
-          onComplete: function(xhr){
+          #{path.to_json}, {evalScript: true, onComplete: function(xhr){
             setTimeout(connect,
               xhr.getResponseHeader('Content-Type') ? 0 : 1000);
           }});

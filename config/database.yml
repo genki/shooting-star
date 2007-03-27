@@ -5,7 +5,8 @@ development:
   database: db/development.sqlite3
   timeout: 5000
   shooting_star:
-    server: '127.0.0.1:8080'
+    #server: '127.0.0.1:8080'
+    server: '192.168.30.122:8080'
     shooter: 'druby://localhost:7123'
 
 # Warning: The database defined as 'test' will be erased and

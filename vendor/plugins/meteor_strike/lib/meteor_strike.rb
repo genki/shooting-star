@@ -3,6 +3,12 @@ require 'md5'
 
 module MeteorStrike
   module Helper
+    def self.included(base)
+      base.class_eval do
+        alias_method_chain :form_tag, :timestamp
+      end
+    end
+
     def meteor_strike(channel, options = {})
       unless options[:cache] || @meteor_strike
         cc = controller.headers['Cache-Control'] || ''
@@ -66,5 +72,23 @@ module MeteorStrike
       </script>
       EOH
     end
+
+  private
+    # Workaround for Safari's strange behaviour after back navigation.
+    # Safari never posts if form elements are not modified since back
+    # navigation. So we append timestamp before submitting.
+    def form_tag_with_timestamp(urlop = {}, options = {}, *arg, &block)
+      options = options.stringify_keys
+      (options['onsubmit'] ||= '').insert(0, %Q[
+        if(!this.__ts__){
+          var ts = document.createElement('input');
+          ts.name = ts.id = '__ts__';
+          ts.type = 'hidden';
+          this.appendChild(ts);
+        }
+        this.__ts__.value = new Number(new Date()).toString(32);
+      ]) unless /^get$/i === options['method']
+      form_tag_without_timestamp(urlop, options, *arg, &block)
+    end 
   end
 end

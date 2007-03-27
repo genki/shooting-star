@@ -42,6 +42,8 @@ task 'update_generator_template_files' do
     templates + '/controller.rb'
   cp 'app/models/meteor.rb',
     templates + '/model.rb'
+  cp 'app/helpers/meteor_helper.rb',
+    templates + '/helper.rb'
   cp 'app/views/meteor/strike.rhtml',
     templates + '/view.rhtml'
   cp 'test/unit/meteor_test.rb',
