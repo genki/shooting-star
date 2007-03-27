@@ -1,5 +1,6 @@
 require 'json'
 require 'cgi'
+require 'uri'
 require 'md5'
 require 'set'
 require 'form_encoder'
@@ -177,7 +178,8 @@ module ShootingStar
       (function(){
         var iframe = document.createElement('iframe');
         var remove = function(){document.body.removeChild(iframe)};
-        iframe.onload = function(){setTimeout(remove, 0)};
+        var timer = setTimeout(remove, 10000);
+        iframe.onload = function(){clearTimeout(timer); setTimeout(remove, 0)};
         document.body.appendChild(iframe);
         iframe.src = '#{@params['execute']}/#{id}?#{@query}';
       })();
@@ -186,12 +188,13 @@ module ShootingStar
 
     # make client connect us.
     def make_connection(path)
+      assets = URI.parse(@params['execute'])
+      assets.path = '/javascripts/prototype.js'
+      assets.query = assets.fragment = nil
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
-      <html><head><script type='text/javascript'
-       src='http://alphastars.drecom.jp/javascripts/prototype.js'
-      ></script>
-      <script type='text/javascript'>
+      <html><head><script type="text/javascript" src="#{assets}"></script>
+      <script type="text/javascript">
       //<![CDATA[
       var connect = function()
       { var request = new Ajax.Request(
