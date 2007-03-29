@@ -32,6 +32,7 @@ vendor/plugins/meteor_strike/generators/meteor/meteor_generator.rb
 vendor/plugins/meteor_strike/generators/meteor/templates
 vendor/plugins/meteor_strike/generators/meteor/templates/controller.rb
 vendor/plugins/meteor_strike/generators/meteor/templates/model.rb
+vendor/plugins/meteor_strike/generators/meteor/templates/helper.rb
 vendor/plugins/meteor_strike/generators/meteor/templates/view.rhtml
 vendor/plugins/meteor_strike/generators/meteor/templates/migration.rb
 vendor/plugins/meteor_strike/generators/meteor/templates/unit_test.rb

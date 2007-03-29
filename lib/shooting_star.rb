@@ -48,11 +48,10 @@ module ShootingStar
     plugin_dir = File.join(base_dir, 'vendor/plugins')
     `mkdir -p #{plugin_dir}` unless File.exist? plugin_dir
     meteor_strike_dir = File.join(plugin_dir, 'meteor_strike')
-    unless File.exist?(meteor_strike_dir)
-      src_dir = File.join(File.dirname(__FILE__),
-        '../vendor/plugins/meteor_strike')
-      `cp -R #{src_dir} #{meteor_strike_dir}`
-    end
+    src_dir = File.join(File.dirname(__FILE__),
+      '../vendor/plugins/meteor_strike')
+    `mkdir -p #{meteor_strike_dir}`
+    `cp -Rf #{src_dir}/* #{meteor_strike_dir}`
   end
 
   def self.start(&block)

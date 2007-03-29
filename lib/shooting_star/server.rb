@@ -199,7 +199,8 @@ module ShootingStar
       //<![CDATA[
       var connect = function()
       { var request = new Ajax.Request(
-          #{path.to_json}, {evalScript: true, onComplete: function(xhr){
+          [#{path.to_json}, new Number(new Date()).toString(32)].join(''),
+          {evalScript: true, onComplete: function(xhr){
             setTimeout(connect,
               xhr.getResponseHeader('Content-Type') ? 0 : 1000);
           }});
@@ -213,6 +214,8 @@ module ShootingStar
       //]]>
       </script></head><body></body></html>
       EOH
+    rescue
+    ensure
       write_and_close
     end
   end
