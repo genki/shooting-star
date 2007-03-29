@@ -38,7 +38,7 @@ module ShootingStar
       @@uids.delete(@signature)
       @@tags.delete(@signature)
       @@executings.delete(@signature)
-      log "Disconnected: #{@uid}"
+      log "Disconnected: #{@uid}:#{@signature}"
       if Channel.cleanup(@channel)
         log "Channel closed: #{@channel}"
       end
@@ -116,9 +116,9 @@ module ShootingStar
     # wait for commands or events until they occur. if they're already in
     # the execution buffer, they'll be flushed and return on the spot.
     def wait_for
-      log "Wait for: #{@channel}:#{@uid}:#{@tag.join(',')}"
+      log "Wait for: #{@channel}:#{@uid}:#{@tag.join(',')}:#{@signature}"
       if Channel[@channel].join(self)
-        log "Flushed: #{@channel}:#{@uid}:#{@tag.join(',')}"
+        log "Flushed: #{@channel}:#{@uid}:#{@tag.join(',')}:#{@signature}"
       end
       @waiting = true
     end

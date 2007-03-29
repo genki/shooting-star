@@ -1,3 +1,7 @@
+*** 1.0.5 / 2007-03-29
++ 1 minor enhancement:
+  + Added signature to log.
+
 *** 1.0.4 / 2007-03-29
 + 2 major enhancements:
   + Cached rendering result of meteor/strike.
@@ -8,7 +12,7 @@
   + Added timer to remove forsaken iframes for Safari.
   + Added configuration option 'sweep_timeout'.
   + Added 'session_timeout' option.
-+ 2 minor bugfixes:
++ 3 minor bugfixes:
   + Solved problem on caching of browsers of MacOS.
   + Added workaround for Safari's strange behaviour after back navigation.
   + Solved problem on connection management.
