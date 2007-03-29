@@ -215,6 +215,12 @@ static VALUE asteroid_server_send_data(VALUE Self, VALUE Data){
 static VALUE asteroid_server_write_and_close(VALUE Self){
   VALUE Fd = rb_iv_get(Self, "@fd");
   int fd = FIX2INT(Fd);
+  char buf[1];
+  if(read(fd, buf, 1) == -1 && errno != EAGAIN){
+    if(rb_respond_to(Self, rb_intern("unbind"))){
+      rb_funcall(Self, rb_intern("unbind"), 0);
+    }
+  }
   asteroid_poll_event_t event;
   memset(&event, 0, sizeof(event));
   asteroid_poll_remove(epoll_fd, &event, fd);
