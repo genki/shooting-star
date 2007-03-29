@@ -2,14 +2,16 @@
 + 2 major enhancements:
   + Cached rendering result of meteor/strike.
   + Improved error and disconnection detection when reading socket.
-+ 4 minor enhancements:
++ 5 minor enhancements:
   + Disabled caching when back.
   + Added meteor_helper.
   + Added timer to remove forsaken iframes for Safari.
   + Added configuration option 'sweep_timeout'.
+  + Added 'session_timeout' option.
 + 2 minor bugfixes:
   + Solved problem on caching of browsers of MacOS.
   + Added workaround for Safari's strange behaviour after back navigation.
+  + Solved problem on connection management.
 
 *** 1.0.3 / 2007-03-22
 + 2 major enhancements:

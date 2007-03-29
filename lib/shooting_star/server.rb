@@ -33,17 +33,20 @@ module ShootingStar
       if channel = Channel[@channel]
         channel.leave(self)
         notify(:event => :leave, :uid => @uid, :tag => @tag)
-        Channel.cleanup(@channel)
       end
       @@servers.delete(@signature)
       @@uids.delete(@signature)
       @@tags.delete(@signature)
       @@executings.delete(@signature)
       log "Disconnected: #{@uid}"
+      if Channel.cleanup(@channel)
+        log "Channel closed: #{@channel}"
+      end
     end
 
     # respond to an execution command. it'll be buffered.
     def respond(id, params)
+      return unbind && false if session_timeout?
       @executing = @@executings[@signature] ||= Hash.new
       if params[:tag] && !params[:tag].empty? && !@tag.empty?
         return false if (params[:tag] & @tag).empty?
@@ -95,6 +98,12 @@ module ShootingStar
   private
     def log(*arg, &block) ShootingStar::log(*arg, &block) end
 
+    # check session timeout.
+    def session_timeout?
+      return false unless @joined_at
+      Time.now - @joined_at > ShootingStar::CONFIG.session_timeout
+    end
+
     # broadcast an event to clients.
     def notify(params = {})
       return unless Channel[@channel]
@@ -110,14 +119,8 @@ module ShootingStar
       if Channel[@channel].join(self)
         log "Flushed: #{@channel}:#{@uid}:#{@tag.join(',')}"
       end
+      @joined_at = Time.now
       @waiting = true
-    end
-
-    # clean up channel and it'll be closed if no one's listening.
-    def cleanup(channel)
-      if Channel.cleanup(channel)
-        log "Channel closed: #{@channel}"
-      end
     end
 
     # give a response to the request or keep them waiting.
@@ -144,23 +147,24 @@ module ShootingStar
       # load or create session informations
       @signature ||= @params['sig']
       @channel ||= path[1..-1].split('?', 2)[0]
-      @uid = @@uids[@signature] ||= @params['uid']
-      @tag = @@tags[@signature] ||=
-        (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
-      @executing = @@executings[@signature] ||= Hash.new
-      @@servers[@signature] = self
       @query = "channel=#{@channel}&sig=#{@signature}"
-      # prepare channel
-      unless Channel[@channel]
-        Channel.new(@channel)
-        log "Channel opened: #{@channel}"
-      end
       # process verb
       if method == 'GET'
         make_connection(path)
-        notify(:event => :enter, :uid => @uid, :tag => @tag)
-        log "Connected: #{@uid}"
       else
+        unless Channel[@channel]
+          Channel.new(@channel)
+          log "Channel opened: #{@channel}"
+        end
+        unless @@servers[@signature] || @params['__t__'] == 'rc'
+          notify(:event => :enter, :uid => @uid, :tag => @tag)
+          log "Connected: #{@uid}"
+        end
+        @uid = @@uids[@signature] ||= @params['uid']
+        @tag = @@tags[@signature] ||=
+          (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
+        @executing = @@executings[@signature] ||= Hash.new
+        @@servers[@signature] = self
         wait_for
       end
     rescue
@@ -172,7 +176,7 @@ module ShootingStar
 
     # add execution line to the buffer.
     def execute(id, params)
-      sweep_timeout = ShootingStar::CONFIG.sweep_timeout || 500_000
+      sweep_timeout = ShootingStar::CONFIG.sweep_timeout
       @executing[id] = params
       @query += "&" + FormEncoder.encode(params) if params
       @execution += <<-"EOH"
@@ -189,6 +193,7 @@ module ShootingStar
 
     # make client connect us.
     def make_connection(path)
+      path.sub!(%r[\&__ts__=.*$], '&__ts__=')
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
@@ -197,11 +202,13 @@ module ShootingStar
       <html><head><script type="text/javascript" src="#{assets}"></script>
       <script type="text/javascript">
       //<![CDATA[
-      var connect = function()
-      { var request = new Ajax.Request(
-          [#{path.to_json}, new Number(new Date()).toString(32)].join(''),
+      var connect = function(reconnect)
+      { var request = new Ajax.Request([#{path.to_json},
+            new Number(new Date()).toString(32),
+            reconnect && '&__t__=rc'
+          ].join(''),
           {evalScript: true, onComplete: function(xhr){
-            setTimeout(connect,
+            setTimeout(function(){connect(true)},
               xhr.getResponseHeader('Content-Type') ? 0 : 1000);
           }});
         var disconnect = function()
@@ -210,7 +217,7 @@ module ShootingStar
         };
         Event.observe(window, 'unload', disconnect);
       };
-      setTimeout(connect, 0);
+      setTimeout(function(){connect(false)}, 0);
       //]]>
       </script></head><body></body></html>
       EOH

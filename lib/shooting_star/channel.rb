@@ -33,9 +33,10 @@ module ShootingStar
     def self.sweep; @@channels.delete_if{|k,v| v.waiters.empty?} end
 
     def self.cleanup(channel)
-      result = @@channels[channel] && @@channels[channel].waiters.empty?
-      @@channels.delete(channel) if result
-      result
+      if @@channels[channel] && @@channels[channel].waiters.empty?
+        @@channels.delete(channel)
+      end
+      !@@channels.include?(channel)
     end
   end
 end

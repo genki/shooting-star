@@ -13,7 +13,9 @@ module ShootingStar
     :pid_file => 'log/shooting_star.pid',
     :log_file => 'log/shooting_star.log',
     :daemon => false,
-    :slient => false)
+    :slient => false,
+    :session_timeout => 10,
+    :sweep_timeout => 500_000)
 
   def self.configure(options = {})
     if @log_file

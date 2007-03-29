@@ -206,9 +206,17 @@ static VALUE asteroid_s_stop(VALUE Self){
 
 static VALUE asteroid_server_send_data(VALUE Self, VALUE Data){
   VALUE Fd = rb_iv_get(Self, "@fd");
-  int fd = FIX2INT(Fd);
+  int fd = FIX2INT(Fd), remain = RSTRING(Data)->len, len;
   char *data = StringValuePtr(Data);
-  send(fd, data, RSTRING(Data)->len, MSG_NOSIGNAL);
+  while((len = send(fd, data, remain, MSG_NOSIGNAL)) > 0){
+    remain -= len;
+    data += len;
+  }
+  if(len == -1 && errno != EAGAIN){
+    if(rb_respond_to(Self, rb_intern("unbind"))){
+      rb_funcall(Self, rb_intern("unbind"), 0);
+    }
+  }
   return Qnil;
 }
 
