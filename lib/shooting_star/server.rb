@@ -46,7 +46,7 @@ module ShootingStar
 
     # respond to an execution command. it'll be buffered.
     def respond(id, params)
-      return unbind && false if session_timeout?
+      return unbind && false unless @waiting || !session_timeout?
       @executing = @@executings[@signature] ||= Hash.new
       if params[:tag] && !params[:tag].empty? && !@tag.empty?
         return false if (params[:tag] & @tag).empty?
@@ -62,6 +62,7 @@ module ShootingStar
       return false if @execution.empty?
       send_data "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n"
       send_data @execution
+      @committed_at = Time.now
       @waiting = nil
       @execution = ''
       @executing = Hash.new
@@ -98,10 +99,10 @@ module ShootingStar
   private
     def log(*arg, &block) ShootingStar::log(*arg, &block) end
 
-    # check session timeout.
+    # check session timeout
     def session_timeout?
-      return false unless @joined_at
-      Time.now - @joined_at > ShootingStar::CONFIG.session_timeout
+      return true unless @committed_at
+      Time.now - @committed_at > ShootingStar::CONFIG.session_timeout
     end
 
     # broadcast an event to clients.
@@ -119,7 +120,6 @@ module ShootingStar
       if Channel[@channel].join(self)
         log "Flushed: #{@channel}:#{@uid}:#{@tag.join(',')}"
       end
-      @joined_at = Time.now
       @waiting = true
     end
 
@@ -178,7 +178,8 @@ module ShootingStar
     def execute(id, params)
       sweep_timeout = ShootingStar::CONFIG.sweep_timeout
       @executing[id] = params
-      @query += "&" + FormEncoder.encode(params) if params
+      query = @query.sub(%r[\&sig=\d+], '')
+      query += "&" + FormEncoder.encode(params) if params
       @execution += <<-"EOH"
       (function(){
         var iframe = document.createElement('iframe');
@@ -186,7 +187,7 @@ module ShootingStar
         var timer = setTimeout(remove, #{sweep_timeout});
         iframe.onload = function(){clearTimeout(timer); setTimeout(remove, 0)};
         document.body.appendChild(iframe);
-        iframe.src = '#{@params['execute']}/#{id}?#{@query}';
+        iframe.src = '#{@params['execute']}/#{id}?#{query}';
       })();
       EOH
     end
