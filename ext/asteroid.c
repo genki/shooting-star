@@ -97,7 +97,7 @@ static int asteroid_poll_wait(
 #endif
 #ifdef HAVE_SYS_EPOLL_H
   #define AST_POLL_EVENT_SOCK(event) ((event)->data.fd)
-  #define AST_POLL_EVENT_CAN_READ(event) ((event)->events & (EPOLLIN | EPOLLPRI))
+  #define AST_POLL_EVENT_CAN_READ(event) ((event)->events & (EPOLLIN|EPOLLPRI))
 #endif
 
 #ifdef SO_NOSIGPIPE
@@ -239,7 +239,7 @@ int dispatch(){
           buf[len] = '\0';
           rb_str_concat(Buf, rb_str_new2(buf));
         }
-        if(len == -1){
+        if(len == -1 && errno == EAGAIN){
           if(rb_respond_to(Server, rb_intern("receive_data"))){
             rb_funcall(Server, rb_intern("receive_data"), 1, Buf);
           }

@@ -1,6 +1,7 @@
 *** 1.0.4 / 2007-03-24
-+ 1 major enhancement:
++ 2 major enhancements:
   + Cached rendering result of meteor/strike.
+  + Improved error detection when reading socket.
 + 4 minor enhancements:
   + Disabled caching when back.
   + Added meteor_helper.
