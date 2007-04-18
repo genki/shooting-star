@@ -29,7 +29,7 @@ module MeteorStrike
       sig = Meteor.shooter.signature
       <<-"EOH"
       <script type="text/javascript">
-      //<[CDATA[
+      //<![CDATA[
       var meteorStrike;
       Event.observe(window, 'load', function(){
         var channel = #{channel.to_json};
