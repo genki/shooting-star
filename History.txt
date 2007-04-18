@@ -1,6 +1,7 @@
-*** 1.0.5 / 2007-03-30
-+ 1 minor enhancement:
+*** 1.0.5 / 2007-04-18
++ 2 minor enhancements:
   + Added signature to log.
+  + Changed format of error log.
 + 1 minor bugfix:
   + Fixed invalid html.
 
