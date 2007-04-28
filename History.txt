@@ -1,3 +1,12 @@
+*** 2.0.0 / 2007-04-30
++ 3 major enhancements:
+  - Comet server clustering.
+  - Random subdomain.
+  - Multi threaded event system call.
+
++ 1 minor enhancements:
+  + Detailed error reporting.
+
 *** 1.0.5 / 2007-04-18
 + 2 minor enhancements:
   + Added signature to log.

@@ -168,7 +168,7 @@ module ShootingStar
         wait_for
       end
     rescue
-      log "ERROR: #{$!.pretty_print}\n#{@data}"
+      log "ERROR: #{$!.message}\n#{$!.backtrace}\n#{@data}"
       raise
     ensure
       @data = ''
