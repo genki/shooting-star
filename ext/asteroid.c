@@ -239,8 +239,11 @@ static VALUE asteroid_server_write_and_close(VALUE Self){
 
 int dispatch(){
   int i, s, len;
-  // We need to wait at least 1 millisecond to avoid busy loop.
-  while((s = asteroid_poll_wait(epoll_fd, events, EVENT_BUF_SIZE, 1)) > 0){
+  while(1){
+    TRAP_BEG;
+    s = asteroid_poll_wait(epoll_fd, events, EVENT_BUF_SIZE, -1);
+    TRAP_END;
+    if(s <= 0) break;
     for(i = 0; i < s; ++i){
       asteroid_poll_event_t event = events[i];
       int fd = AST_POLL_EVENT_SOCK(&event);
