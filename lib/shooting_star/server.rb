@@ -9,6 +9,8 @@ module ShootingStar
   # The module which will be included by servant who was born in the Asteroid.
   # This idea is from EventMachine.
   module Server
+    class MethodNotAcceptable < StandardError; end
+
     attr_reader :signature
     @@servers = {}
     @@uids = {}
@@ -24,7 +26,54 @@ module ShootingStar
     # receive the data sent from client.
     def receive_data(data)
       @data += data
-      response if @data[-4..-1] == "\r\n\r\n"
+      header, body = @data.split(/\n\n|\r\r|\n\r\n\r|\r\n\r\n/, 2)
+      return unless body
+      data = @data
+      headers = header.split(/[\n\r]+/)
+      head = headers.shift
+      method, path, protocol = head.split(/\s+/)
+      raise MethodNotAcceptable unless method.downcase == 'post'
+      # recognize header
+      hdr = headers.inject({}) do |hash, line|
+        key, value = line.split(/ *?: */, 2)
+        hash[key.downcase] = value if key
+        hash
+      end
+      # check data arrival
+      return if body.length < hdr['content-length'].to_i
+      @data = ''
+      # recognize parameter
+      @params = Hash.new
+      body.split('&').each do |item|
+        key, value = item.split('=', 2)
+        @params[key] = CGI.unescape(value) if value && value.length > 0
+      end
+      # load or create session informations
+      @signature ||= @params['sig']
+      @channel ||= path[1..-1].split('?', 2)[0]
+      @query = "channel=#{@channel}&sig=#{@signature}"
+      # process verb
+      unless @params['__t__']
+        make_connection(path)
+      else
+        unless Channel[@channel]
+          Channel.new(@channel)
+          log "Channel opened: #{@channel}"
+        end
+        unless @@servers[@signature] || @params['__t__'] == 'rc'
+          notify(:event => :enter, :uid => @uid, :tag => @tag)
+          log "Connected: #{@uid}"
+        end
+        @uid = @@uids[@signature] ||= @params['uid']
+        @tag = @@tags[@signature] ||=
+          (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
+        @executing = @@executings[@signature] ||= Hash.new
+        @@servers[@signature] = self
+        wait_for
+      end
+    rescue Exception => e
+      log "ERROR: #{e.message}\n#{e.backtrace.join("\n")}\n#{data}"
+      write_and_close
     end
 
     # detect disconnection from the client and clean it up.
@@ -91,7 +140,7 @@ module ShootingStar
     def uid; @@uids[@signature] end
     def tag; @@tags[@signature] end
 
-    # an accessor which maps signatures to servers.
+    # accessor which maps signatures to servers.
     def self.[](signature)
       @@servers[signature]
     end
@@ -105,7 +154,7 @@ module ShootingStar
       Time.now - @committed_at > ShootingStar::CONFIG.session_timeout
     end
 
-    # broadcast an event to clients.
+    # broadcast event to clients.
     def notify(params = {})
       return unless Channel[@channel]
       event_id = ShootingStar::timestamp
@@ -123,57 +172,6 @@ module ShootingStar
       @waiting = true
     end
 
-    # give a response to the request or keep them waiting.
-    def response
-      headers = @data.split("\n")
-      head = headers.shift
-      method, path, protocol = head.split(/\s+/)
-      # recognize header
-      hdr = headers.inject({}) do |hash, line|
-        key, value = line.chop.split(/ *?: */, 2)
-        hash[key.downcase] = value if key
-        hash
-      end
-      # recognize parameter
-      @params = Hash.new
-      if @query = path.split('?', 2)[1]
-        if @query = @query.split('#', 2)[0]
-          @query.split('&').each do |item|
-            key, value = item.split('=', 2)
-            @params[key] = CGI.unescape(value) if value && value.length > 0
-          end
-        end
-      end
-      # load or create session informations
-      @signature ||= @params['sig']
-      @channel ||= path[1..-1].split('?', 2)[0]
-      @query = "channel=#{@channel}&sig=#{@signature}"
-      # process verb
-      if method == 'GET'
-        make_connection(path)
-      else
-        unless Channel[@channel]
-          Channel.new(@channel)
-          log "Channel opened: #{@channel}"
-        end
-        unless @@servers[@signature] || @params['__t__'] == 'rc'
-          notify(:event => :enter, :uid => @uid, :tag => @tag)
-          log "Connected: #{@uid}"
-        end
-        @uid = @@uids[@signature] ||= @params['uid']
-        @tag = @@tags[@signature] ||=
-          (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
-        @executing = @@executings[@signature] ||= Hash.new
-        @@servers[@signature] = self
-        wait_for
-      end
-    rescue
-      log "ERROR: #{$!.message}\n#{$!.backtrace}\n#{@data}"
-      raise
-    ensure
-      @data = ''
-    end
-
     # add execution line to the buffer.
     def execute(id, params)
       sweep_timeout = ShootingStar::CONFIG.sweep_timeout
@@ -185,33 +183,36 @@ module ShootingStar
         var iframe = document.createElement('iframe');
         var remove = function(){document.body.removeChild(iframe)};
         var timer = setTimeout(remove, #{sweep_timeout});
-        iframe.onload = function(){clearTimeout(timer); setTimeout(remove, 0)};
-        document.body.appendChild(iframe);
+        iframe.onload = function(){
+          clearTimeout(timer);
+          setTimeout(remove, 0);
+        };
         iframe.src = '#{@params['execute']}/#{id}?#{query}';
+        document.body.appendChild(iframe);
       })();
       EOH
     end
 
     # make client connect us.
     def make_connection(path)
-      path.sub!(%r[\&__ts__=.*$], '&__ts__=')
+      #path.sub!(%r[\&__ts__=.*$], '&__ts__=')
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
+
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
       <html><head><script type="text/javascript" src="#{assets}"></script>
       <script type="text/javascript">
       //<![CDATA[
       var connect = function(reconnect)
-      { var request = new Ajax.Request([#{path.to_json},
-            new Number(new Date()).toString(32),
-            reconnect && '&__t__=rc'
-          ].join(''),
+      { var body = $H(#{@params.to_json});
+        body.__t__ = reconnect ? 'rc' : 'c';
+        var request = new Ajax.Request(#{path.to_json},
           {evalScript: true, onComplete: function(xhr){
             setTimeout(function(){connect(true)},
               xhr.getResponseHeader('Content-Type') ? 0 : 1000);
-          }});
+          }, postBody: body.toQueryString()});
         var disconnect = function()
         { request.options.onComplete = function(){};
           request.transport.abort();
@@ -222,7 +223,7 @@ module ShootingStar
       //]]>
       </script></head><body></body></html>
       EOH
-    rescue
+    rescue Exception
     ensure
       write_and_close
     end
