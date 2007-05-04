@@ -1,8 +1,7 @@
 *** 2.0.0 / 2007-04-30
 + 2 major enhancements:
-  - Comet server clustering.
-  - Arbitrary subdomain acceptance.
-
+  + Comet server clustering.
+  + Arbitrary subdomain acceptance.
 + 4 minor enhancements:
   + Unlimited use of tags.
   + Detailed error reporting.

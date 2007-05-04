@@ -42,7 +42,7 @@ module ShootingStar
 
     def executed(sig, id)
       ::ShootingStar::Server[sig].executed(id)
-    rescue
+    rescue Exception
     end
 
   private

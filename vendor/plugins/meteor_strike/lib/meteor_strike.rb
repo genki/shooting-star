@@ -19,8 +19,14 @@ module MeteorStrike
         @meteor_strike = 0
       end
       @meteor_strike += 1
-      config = ActiveRecord::Base.configurations[RAILS_ENV]
-      shooting_star_uri = "#{config['shooting_star']['server']}/#{channel}"
+      config = ActiveRecord::Base.configurations[RAILS_ENV]['shooting_star']
+      server = config['server'].kind_of?(Array) ?
+        config['server'][rand(config['server'].length)] : config['server']
+      shooting_star_uri = "#{server}/#{channel}"
+      if config['random_subdomain'] && server === /\w/
+        subdomain = (1..6).map{(rand(26)+?a).chr}.to_s
+        shooting_star_uri = [subdomain, shooting_star_uri].join('.')
+      end
       uri = url_for(:only_path => false).split('/')[0..2].join('/')
       uid = options[:uid] ? CGI.escape(options[:uid].to_s) : ''
       tags = options[:tag] || []
