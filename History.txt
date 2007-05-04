@@ -1,4 +1,4 @@
-*** 2.0.0 / 2007-04-30
+*** 2.0.0 / 2007-05-07
 + 2 major enhancements:
   + Comet server clustering.
   + Arbitrary subdomain acceptance.
