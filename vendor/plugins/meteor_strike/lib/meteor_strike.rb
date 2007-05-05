@@ -55,6 +55,7 @@ module MeteorStrike
           return $A(tags).uniq().map(encode).join(',');
         };
         meteorStrike = meteorStrike || new Object;
+        meteorStrike.getTags = function(){return TAGS};
         meteorStrike.execute = function(js){eval(js)};
         meteorStrike.event = meteorStrike.event || $H();
         meteorStrike.event[channel] = function(params){#{options[:event]}};
@@ -66,7 +67,7 @@ module MeteorStrike
           UID = uid, TAGS = tags;
         };
         meteorStrike.tuneIn = function(tags){
-          meteorStrike.update(UID, TAGS.concat(tags).uniq());
+          meteorStrike.update(UID, TAGS.concat(tags || []).uniq());
         };
         meteorStrike.tuneOut = function(tags){
           meteorStrike.update(UID, Array.prototype.without.apply(TAGS, tags));
