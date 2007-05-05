@@ -10,7 +10,7 @@ class MeteorController < ApplicationController
       @javascript = meteor.javascript
     else
       @javascript = %Q[setTimeout(function(){
-        meteorStrike.event[#{@channel.to_json}](#{params.to_json});}, 0);]
+        meteorStrike[#{@channel.to_json}].event(#{params.to_json});}, 0);]
     end
   end
 

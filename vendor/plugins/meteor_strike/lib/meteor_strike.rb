@@ -23,7 +23,7 @@ module MeteorStrike
       server = config['server'].kind_of?(Array) ?
         config['server'][rand(config['server'].length)] : config['server']
       shooting_star_uri = "#{server}/#{channel}"
-      if config['random_subdomain'] && /\w/ === server
+      if config['random_subdomain'] && /[A-z]/ === server
         subdomain = (1..6).map{(rand(26)+?a).chr}.to_s
         shooting_star_uri = [subdomain, shooting_star_uri].join('.')
       end
@@ -46,7 +46,7 @@ module MeteorStrike
       </form></div>
       <script type="text/javascript">
       //<![CDATA[
-      var meteorStrike;
+      var meteorStrike = meteorStrike || $H();
       Event.observe(window, 'load', function(){
         var channel = #{channel.to_json};
         var UID = #{uid.to_json}, TAGS = #{tags.to_json};
@@ -54,23 +54,22 @@ module MeteorStrike
           var encode = function(i){return encodeURIComponent(i)};
           return $A(tags).uniq().map(encode).join(',');
         };
-        meteorStrike = meteorStrike || new Object;
-        meteorStrike.getTags = function(){return TAGS};
-        meteorStrike.execute = function(js){eval(js)};
-        meteorStrike.event = meteorStrike.event || $H();
-        meteorStrike.event[channel] = function(params){#{options[:event]}};
-        meteorStrike.update = function(uid, tags){
+        var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
+        ms.getTags = function(){return TAGS};
+        ms.execute = function(js){eval(js)};
+        ms.event = function(params){#{options[:event]}};
+        ms.update = function(uid, tags){
           new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
             channel: channel, uid: uid || UID,
             tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
-          }).toQueryString()});
+          }).toQueryString(), asynchronous: false});
           UID = uid, TAGS = tags;
         };
-        meteorStrike.tuneIn = function(tags){
-          meteorStrike.update(UID, TAGS.concat(tags || []).uniq());
+        ms.tuneIn = function(tags){
+          ms.update(UID, TAGS.concat(tags || []).uniq());
         };
-        meteorStrike.tuneOut = function(tags){
-          meteorStrike.update(UID, Array.prototype.without.apply(TAGS, tags));
+        ms.tuneOut = function(tags){
+          ms.update(UID, Array.prototype.without.apply(TAGS, tags));
         };
         setTimeout(function(){ 
           var form = $("#{iframe_id}-form");

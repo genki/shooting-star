@@ -29,7 +29,11 @@ class ChatsController < ApplicationController
         session[:name] = @chat.name
         session[:tags] = tags
         render :update do |page|
-          page << "meteorStrike.update(#{@chat.name.to_json}, #{tags.to_json})"
+          page << %Q{
+            meteorStrike['simple_chat/chatroom'].update(
+              #{@chat.name.to_json}, #{tags.to_json}
+            );
+          }
         end
       end
       Meteor::shoot 'simple_chat/chatroom', javascript, tags
