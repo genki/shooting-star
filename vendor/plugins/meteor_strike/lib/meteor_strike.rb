@@ -23,7 +23,7 @@ module MeteorStrike
       server = config['server'].kind_of?(Array) ?
         config['server'][rand(config['server'].length)] : config['server']
       shooting_star_uri = "#{server}/#{channel}"
-      if config['random_subdomain'] && server === /\w/
+      if config['random_subdomain'] && /\w/ === server
         subdomain = (1..6).map{(rand(26)+?a).chr}.to_s
         shooting_star_uri = [subdomain, shooting_star_uri].join('.')
       end
