@@ -62,7 +62,7 @@ module MeteorStrike
           new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
             channel: channel, uid: uid || UID,
             tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
-          }).toQueryString(), asynchronous: false});
+          }).toQueryString(), asynchronous: true});
           UID = uid, TAGS = tags;
         };
         ms.tuneIn = function(tags){
