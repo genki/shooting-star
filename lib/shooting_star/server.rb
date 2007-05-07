@@ -195,7 +195,6 @@ module ShootingStar
 
     # make client connect us.
     def make_connection(path)
-      #path.sub!(%r[\&__ts__=.*$], '&__ts__=')
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
