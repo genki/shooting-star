@@ -1,3 +1,7 @@
+*** 2.0.1 / 2007-05-09
++ 1 minor bug fix:
+  + Corrected an invalid use of logger in models/meteor.rb
+
 *** 2.0.0 / 2007-05-07
 + 2 major enhancements:
   + Comet server clustering.
