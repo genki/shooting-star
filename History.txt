@@ -1,6 +1,7 @@
-*** 2.0.1 / 2007-05-09
-+ 1 minor bug fix:
+*** 2.0.1 / 2007-05-16
++ 2 minor bug fix:
   + Corrected an invalid use of logger in models/meteor.rb
+  + An overlooked exception came to be caught.
 
 *** 2.0.0 / 2007-05-07
 + 2 major enhancements:

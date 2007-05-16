@@ -11,6 +11,7 @@ module ShootingStar
 
     def update(sig, uid, tag)
       ::ShootingStar::Server[sig].update(uid, tag || [])
+    rescue Exception
     end
 
     def signature; ShootingStar::timestamp end
