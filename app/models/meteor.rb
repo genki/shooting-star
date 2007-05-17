@@ -29,9 +29,8 @@ class Meteor < ActiveRecord::Base
           result << shooter.__send__(method, *args, &block)
         rescue Exception => e
           Meteor.logger.error "#{e.message}\n#{e.backtrace.join("\n")}"
-        ensure
-          result
         end
+        result
       end || []
     end
   end
