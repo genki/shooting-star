@@ -241,7 +241,7 @@ int dispatch(){
   int i, s, len;
   while(1){
     TRAP_BEG;
-    s = asteroid_poll_wait(epoll_fd, events, EVENT_BUF_SIZE, -1);
+    s = asteroid_poll_wait(epoll_fd, events, EVENT_BUF_SIZE, 1);
     TRAP_END;
     if(s <= 0) break;
     for(i = 0; i < s; ++i){
