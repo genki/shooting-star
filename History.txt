@@ -1,4 +1,4 @@
-*** 2.0.1 / 2007-05-16
+*** 2.0.1 / 2007-05-20
 + 1 minor enhancement:
   + Added dependencies of gems.
 + 2 minor bug fix:
