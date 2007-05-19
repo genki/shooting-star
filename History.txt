@@ -1,4 +1,6 @@
 *** 2.0.1 / 2007-05-16
++ 1 minor enhancement:
+  + Added dependencies of gems.
 + 2 minor bug fix:
   + Corrected an invalid use of logger in models/meteor.rb
   + An overlooked exception came to be caught.
