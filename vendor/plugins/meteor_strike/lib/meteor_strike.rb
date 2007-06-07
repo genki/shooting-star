@@ -20,6 +20,9 @@ module MeteorStrike
       end
       @meteor_strike += 1
       config = ActiveRecord::Base.configurations[RAILS_ENV]['shooting_star']
+      config ||= {
+        'server' => 'localhost:8080',
+        'shooter' => 'druby://localhost:7123'}
       server = config['server'].kind_of?(Array) ?
         config['server'][rand(config['server'].length)] : config['server']
       shooting_star_uri = "#{server}/#{channel}"

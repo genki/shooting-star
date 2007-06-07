@@ -1,0 +1,7 @@
+<%%= render_component :action => 'new' %%>
+<ul id="chat-list">
+<%% for chat in @chats  %%>
+<%%= render_component :action => 'show', :id => chat.id %%>
+<%% end %%>
+</ul>
+<%%= meteor_strike <%= file_name %> %%>

@@ -1,3 +1,10 @@
+*** 2.0.2 / 2007-06-09
++ 1 major enhancement:
+  + Added chat generator.
+
++ 1 minor enhancement:
+  + Default client configuration.
+
 *** 2.0.1 / 2007-05-20
 + 1 minor enhancement:
   + Added dependencies of gems.
