@@ -1,4 +1,4 @@
-class CreateMeteors < ActiveRecord::Migration
+class Create<%= class_name.pluralize %> < ActiveRecord::Migration
   def self.up
     create_table '<%= file_name.pluralize %>' do |t|
       t.column :name, :string
