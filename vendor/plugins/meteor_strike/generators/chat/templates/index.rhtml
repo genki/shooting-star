@@ -1,7 +1,11 @@
-<%%= render_component :action => 'new' %%>
+<%% form_remote_for(:chat, :url => {:action => 'talk'}) do |f| %>
+  <%%= f.text_field :name %>
+  <%%= submit_tag 'Talk' %><br />
+  <%%= f.text_area :message, :rows => 3 %>
+<%% end %>
 <ul id="chat-list">
-<%% for chat in @chats  %%>
-<%%= render_component :action => 'show', :id => chat.id %%>
-<%% end %%>
+<%% for chat in @chats %>
+  <%%= render_component :action => 'show', :id => chat.id %>
+<%% end %>
 </ul>
-<%%= meteor_strike <%= file_name %> %%>
+<%%= meteor_strike '<%= file_name %>' %>

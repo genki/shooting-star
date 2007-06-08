@@ -4,6 +4,10 @@
 
 + 1 minor enhancement:
   + Default client configuration.
+  + Changed reconnecting interval from 1 sec to 3 sec.
+
++ 1 minor bugfix:
+  + Suppressed invalid access to closed channel.
 
 *** 2.0.1 / 2007-05-20
 + 1 minor enhancement:

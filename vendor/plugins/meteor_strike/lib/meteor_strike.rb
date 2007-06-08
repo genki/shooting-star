@@ -20,9 +20,9 @@ module MeteorStrike
       end
       @meteor_strike += 1
       config = ActiveRecord::Base.configurations[RAILS_ENV]['shooting_star']
-      config ||= {
-        'server' => 'localhost:8080',
-        'shooter' => 'druby://localhost:7123'}
+      config ||= {}
+      config['server'] ||= 'localhost:8080'
+      config['shooter'] ||= 'druby://localhost:7123'
       server = config['server'].kind_of?(Array) ?
         config['server'][rand(config['server'].length)] : config['server']
       shooting_star_uri = "#{server}/#{channel}"
@@ -59,6 +59,7 @@ module MeteorStrike
         };
         var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
         ms.getTags = function(){return TAGS};
+        ms.getUid = function(){return UID};
         ms.execute = function(js){eval(js)};
         ms.event = function(params){#{options[:event]}};
         ms.update = function(uid, tags){

@@ -56,10 +56,7 @@ module ShootingStar
       unless @params['__t__']
         make_connection(path)
       else
-        unless Channel[@channel]
-          Channel.new(@channel)
-          log "Channel opened: #{@channel}"
-        end
+        prepare_channel(@channel)
         unless @@servers[@signature] || @params['__t__'] == 'rc'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
           log "Connected: #{@uid}"
@@ -71,6 +68,8 @@ module ShootingStar
         @@servers[@signature] = self
         wait_for
       end
+    rescue MethodNotAcceptable
+      write_and_close
     rescue Exception => e
       log "ERROR: #{e.message}\n#{e.backtrace.join("\n")}\n#{data}"
       write_and_close
@@ -166,10 +165,19 @@ module ShootingStar
     # the execution buffer, they'll be flushed and return on the spot.
     def wait_for
       log "Wait for: #{@channel}:#{@uid}:#{@tag.join(',')}:#{@signature}"
-      if Channel[@channel].join(self)
+      if prepare_channel(@channel).join(self)
         log "Flushed: #{@channel}:#{@uid}:#{@tag.join(',')}:#{@signature}"
       end
       @waiting = true
+    end
+
+    # prepare channel object.
+    def prepare_channel(channel)
+      unless Channel[channel]
+        Channel.new(channel)
+        log "Channel opened: #{channel}"
+      end
+      Channel[channel]
     end
 
     # add execution line to the buffer.
@@ -198,7 +206,6 @@ module ShootingStar
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
-
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
       <html><head><script type="text/javascript" src="#{assets}"></script>
@@ -210,7 +217,7 @@ module ShootingStar
         var request = new Ajax.Request(#{path.to_json},
           {evalScript: true, onComplete: function(xhr){
             setTimeout(function(){connect(true)},
-              xhr.getResponseHeader('Content-Type') ? 0 : 1000);
+              xhr.getResponseHeader('Content-Type') ? 0 : 3000);
           }, postBody: body.toQueryString()});
         var disconnect = function()
         { request.options.onComplete = function(){};

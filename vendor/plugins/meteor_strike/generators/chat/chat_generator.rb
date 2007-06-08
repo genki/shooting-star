@@ -1,6 +1,6 @@
 class ChatGenerator < Rails::Generator::NamedBase
   def initialize(runtime_args, runtime_options)
-    base_name = 'chat'
+    base_name = runtime_args.shift || 'chat'
     runtime_args.unshift(base_name)
     super
   end
@@ -38,9 +38,8 @@ class ChatGenerator < Rails::Generator::NamedBase
       m.template 'unit_test.rb',
         File.join('test/unit', class_path, "#{file_name}_test.rb")
 
-      m.migration_template 'migration.rb',
-        File.join('db/migrate', class_path),
-        :migration_file_name => 'create_chats'
+      m.migration_template 'migration.rb', 'db/migrate',
+        :migration_file_name => "create_#{file_name.pluralize}"
     end
   end
 end

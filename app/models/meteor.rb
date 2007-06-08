@@ -6,6 +6,7 @@ class Meteor < ActiveRecord::Base
     LISTINGS = [:listeners, :listeners_with, :channels, :signatures]
 
     def initialize(config)
+      config['shooting_star'] ||= {'shooter' => 'druby://localhost:7123'}
       uris = config['shooting_star']['shooter']
       @shooters = [uris].flatten.map{|uri| DRbObject.new_with_uri(uri)}
     end
