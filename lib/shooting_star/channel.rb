@@ -9,7 +9,6 @@ module ShootingStar
     def initialize(path)
       @path = path
       @waiters = Hash.new
-      @event_id = 0
       @@channels[path] = self
     end
 
@@ -28,7 +27,7 @@ module ShootingStar
       @waiters.delete(server.signature)
     end
 
-    def self.[](channel); @@channels[channel] end
+    def self.[](path); @@channels[path] end
     def self.list; @@channels.keys end
     def self.sweep; @@channels.delete_if{|k,v| v.waiters.empty?} end
 

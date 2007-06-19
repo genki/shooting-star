@@ -1,6 +1,10 @@
 *** 3.0.0 / 2007-06-22
-+ 1 major enhancement:
++ 2 major enhancements:
   + Added flush client.
+  + Cleaning up source code.
+
++ 1 minor bugfix:
+  + Closed a hole leaking messages.
 
 *** 2.0.2 / 2007-06-09
 + 1 major enhancement:

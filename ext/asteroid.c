@@ -206,18 +206,26 @@ static VALUE asteroid_s_stop(VALUE Self){
 
 static VALUE asteroid_server_send_data(VALUE Self, VALUE Data){
   VALUE Fd = rb_iv_get(Self, "@fd");
-  int fd = FIX2INT(Fd), remain = RSTRING(Data)->len, len;
+  int fd = FIX2INT(Fd), remain = RSTRING(Data)->len, len, trial = 100;
   char *data = StringValuePtr(Data);
-  while((len = send(fd, data, remain, MSG_NOSIGNAL)) > 0){
-    remain -= len;
-    data += len;
-  }
-  if(len == -1 && errno != EAGAIN){
-    if(rb_respond_to(Self, rb_intern("unbind"))){
-      rb_funcall(Self, rb_intern("unbind"), 0);
+  while(remain){
+    len = send(fd, data, remain, MSG_NOSIGNAL);
+    if(len == -1){
+      if(errno == EAGAIN && --trial){
+        rb_thread_schedule();
+        CHECK_INTS;
+      }else{
+        if(rb_respond_to(Self, rb_intern("unbind"))){
+          rb_funcall(Self, rb_intern("unbind"), 0);
+        }
+        return Qnil;
+      }
+    }else{
+      remain -= len;
+      data += len;
     }
   }
-  return Qnil;
+  return Qtrue;
 }
 
 static VALUE asteroid_server_write_and_close(VALUE Self){

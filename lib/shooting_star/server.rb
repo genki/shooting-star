@@ -53,8 +53,10 @@ module ShootingStar
       @channel ||= path[1..-1].split('?', 2)[0]
       @query = "channel=#{@channel}&sig=#{@signature}"
       # process verb
-      unless @params['__t__']
+      if !@params['__t__']
         make_connection(path)
+      elsif @params['__t__'] == 'flash'
+        communicate_with_flash_client(path)
       else
         prepare_channel(@channel)
         unless @@servers[@signature] || @params['__t__'] == 'rc'
@@ -108,8 +110,8 @@ module ShootingStar
       return false if @unbound
       @executing.each{|id, params| execute(id, params)}
       return false if @execution.empty?
-      send_data "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n"
-      send_data @execution
+      data = "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n#{@execution}"
+      return false unless send_data data
       @committed_at = Time.now
       @waiting = nil
       @execution = ''
@@ -232,6 +234,17 @@ module ShootingStar
     rescue Exception
     ensure
       write_and_close
+    end
+
+    # establish communication with flash client.
+    def communicate_with_flash_client(path)
+      log "Communication: #{path}"
+      send_data "HTTP/1.1 200 OK\nContent-Type: text/xml\n\n" +
+      <<-"EOH"
+      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      <test>abc</test>
+      EOH
     end
   end
 end
