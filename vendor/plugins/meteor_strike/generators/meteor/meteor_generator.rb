@@ -34,6 +34,8 @@ class MeteorGenerator < Rails::Generator::NamedBase
       m.template 'unit_test.rb',
         File.join('test/unit', class_path, "#{file_name}_test.rb")
 
+      m.template 'crossdomain.xml', 'public/crossdomain.xml'
+
       m.migration_template 'migration.rb', 'db/migrate',
         :migration_file_name => "create_#{file_name.pluralize}"
     end
