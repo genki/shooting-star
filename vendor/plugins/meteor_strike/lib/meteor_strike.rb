@@ -39,7 +39,7 @@ module MeteorStrike
       iframe_id = "meteor-strike-#{@meteor_strike}"
       flash_vars = [
         "channel=#{channel}", "tag=#{tag}", "uid=#{uid}", "sig=#{sig}",
-        "execute_uri=#{uri}/meteor/strike", "server=#{server}"].join('&')
+        "base_uri=#{uri}", "server=#{server}"].join('&')
       flash_code_base = ['http://fpdownload.macromedia.com/',
         'pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0'].join('')
       swf_path = File.join(RAILS_ROOT, 'public/meteor_strike.swf')
@@ -111,7 +111,7 @@ module MeteorStrike
         }catch(e){}
       });
       function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
-        eval(args);
+        if(command == 'execute') eval(args);
       }
       if(navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
         navigator.userAgent.indexOf("Windows") != -1 &&

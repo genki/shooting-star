@@ -1,7 +1,11 @@
 *** 3.0.0 / 2007-06-22
-+ 2 major enhancements:
++ 3 major enhancements:
   + Added flush client.
   + Cleaning up source code.
+  + Implemented reconnection for flash client.
+
++ 1 minor enhancement:
+  + Sending policy file in response to flash client's request.
 
 + 1 minor bugfix:
   + Closed a hole leaking messages.
@@ -13,7 +17,7 @@
 + 1 major enhancement:
   + Added chat generator.
 
-+ 1 minor enhancement:
++ 2 minor enhancements:
   + Default client configuration.
   + Changed reconnecting interval from 1 sec to 3 sec.
 

@@ -25,6 +25,8 @@ module ShootingStar
 
     # receive the data sent from client.
     def receive_data(data)
+      return send_policy_file if @data.length == 0 &&
+        data == "<policy-file-request/>"
       @data += data
       header, body = @data.split(/\n\n|\r\r|\n\r\n\r|\r\n\r\n/, 2)
       return unless body
@@ -235,6 +237,16 @@ module ShootingStar
       EOH
     rescue Exception
     ensure
+      write_and_close
+    end
+
+    # respond to policy file request.
+    def send_policy_file
+      send_data <<-"EOH" + "\0"
+      <cross-domain-policy>
+        <allow-access-from domain="*" to-ports="*" />
+      </cross-domain-policy>
+      EOH
       write_and_close
     end
 

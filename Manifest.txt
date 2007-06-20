@@ -37,7 +37,6 @@ vendor/plugins/meteor_strike/generators/meteor/templates/view.rhtml
 vendor/plugins/meteor_strike/generators/meteor/templates/migration.rb
 vendor/plugins/meteor_strike/generators/meteor/templates/unit_test.rb
 vendor/plugins/meteor_strike/generators/meteor/templates/functional_test.rb
-vendor/plugins/meteor_strike/generators/meteor/templates/crossdomain.xml
 vendor/plugins/meteor_strike/generators/meteor/templates/meteor_strike.swf
 vendor/plugins/meteor_strike/generators/chat
 vendor/plugins/meteor_strike/generators/chat/chat_generator.rb
