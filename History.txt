@@ -6,6 +6,9 @@
 + 1 minor bugfix:
   + Closed a hole leaking messages.
 
++ 1 minor spec change:
+  + send_message returns true if succeeded.
+
 *** 2.0.2 / 2007-06-09
 + 1 major enhancement:
   + Added chat generator.

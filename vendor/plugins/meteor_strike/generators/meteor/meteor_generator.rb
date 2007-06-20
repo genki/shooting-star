@@ -35,6 +35,7 @@ class MeteorGenerator < Rails::Generator::NamedBase
         File.join('test/unit', class_path, "#{file_name}_test.rb")
 
       m.template 'crossdomain.xml', 'public/crossdomain.xml'
+      m.file 'meteor_strike.swf', 'public/meteor_strike.swf'
 
       m.migration_template 'migration.rb', 'db/migrate',
         :migration_file_name => "create_#{file_name.pluralize}"

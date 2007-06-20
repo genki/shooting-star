@@ -5,11 +5,11 @@ development:
   database: db/development.sqlite3
   timeout: 5000
   shooting_star:
-    #server: '127.0.0.1:8080'
+    #server: 'localhost:8080'
     #shooter: 'druby://localhost:7123'
     server:
-      - '127.0.0.1:8080'
-      #- '127.0.0.1:8081'
+      - 'localhost:8080'
+      #- 'localhost:8081'
     shooter:
       - 'druby://localhost:7123'
       #- 'druby://localhost:7124'

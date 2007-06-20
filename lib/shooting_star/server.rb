@@ -11,7 +11,7 @@ module ShootingStar
   module Server
     class MethodNotAcceptable < StandardError; end
 
-    attr_reader :signature
+    attr_reader :signature, :type
     @@servers = {}
     @@uids = {}
     @@tags = {}
@@ -52,14 +52,13 @@ module ShootingStar
       @signature ||= @params['sig']
       @channel ||= path[1..-1].split('?', 2)[0]
       @query = "channel=#{@channel}&sig=#{@signature}"
+      @type = @params['__t__']
       # process verb
-      if !@params['__t__']
+      if !@type
         make_connection(path)
-      elsif @params['__t__'] == 'flash'
-        communicate_with_flash_client(path)
       else
         prepare_channel(@channel)
-        unless @@servers[@signature] || @params['__t__'] == 'rc'
+        unless @@servers[@signature] || @type == 'rc'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
           log "Connected: #{@uid}"
         end
@@ -69,6 +68,7 @@ module ShootingStar
         @executing = @@executings[@signature] ||= Hash.new
         @@servers[@signature] = self
         wait_for
+        communicate_with_flash_client(path) if @type == 'f'
       end
     rescue MethodNotAcceptable
       write_and_close
@@ -110,14 +110,16 @@ module ShootingStar
       return false if @unbound
       @executing.each{|id, params| execute(id, params)}
       return false if @execution.empty?
-      data = "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n#{@execution}"
-      return false unless send_data data
+      return false unless send_data(@type == 'f' ? "#{@execution}\0" :
+        "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n#{@execution}")
       @committed_at = Time.now
-      @waiting = nil
       @execution = ''
       @executing = Hash.new
       @@executings.delete(@signature)
-      write_and_close
+      unless @type == 'f'
+        @waiting = nil
+        write_and_close
+      end
       true
     end
 
@@ -239,12 +241,6 @@ module ShootingStar
     # establish communication with flash client.
     def communicate_with_flash_client(path)
       log "Communication: #{path}"
-      send_data "HTTP/1.1 200 OK\nContent-Type: text/xml\n\n" +
-      <<-"EOH"
-      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
-             "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
-      <test>abc</test>
-      EOH
     end
   end
 end
