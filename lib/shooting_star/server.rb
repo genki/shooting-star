@@ -52,14 +52,14 @@ module ShootingStar
       end
       # load or create session informations
       @signature ||= @params['sig']
-      @channel ||= path[1..-1].split('?', 2)[0]
-      @query = "channel=#{@channel}&sig=#{@signature}"
+      @channel_path ||= path[1..-1].split('?', 2)[0]
+      @query = "channel=#{@channel_path}&sig=#{@signature}"
       @type = @params['__t__']
       # process verb
       if !@type
         make_connection(path)
       else
-        prepare_channel(@channel)
+        prepare_channel(@channel_path)
         unless @@servers[@signature] || @type == 'rc'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
           log "Connected: #{@uid}"
@@ -70,7 +70,6 @@ module ShootingStar
         @executing = @@executings[@signature] ||= Hash.new
         @@servers[@signature] = self
         wait_for
-        communicate_with_flash_client(path) if @type == 'f'
       end
     rescue MethodNotAcceptable
       write_and_close
@@ -82,7 +81,7 @@ module ShootingStar
     # detect disconnection from the client and clean it up.
     def unbind
       @unbound = true
-      if channel = Channel[@channel]
+      if channel = Channel[@channel_path]
         channel.leave(self)
         notify(:event => :leave, :uid => @uid, :tag => @tag)
       end
@@ -91,14 +90,14 @@ module ShootingStar
       @@tags.delete(@signature)
       @@executings.delete(@signature)
       log "Disconnected: #{@uid}:#{@signature}"
-      if Channel.cleanup(@channel)
-        log "Channel closed: #{@channel}"
+      if Channel.cleanup(@channel_path)
+        log "Channel closed: #{@channel_path}"
       end
     end
 
-    # respond to an execution command. it'll be buffered.
+    # respond to an execution command.
     def respond(id, params)
-      return unbind && false unless @waiting || !session_timeout?
+      return unbind && false if !@waiting && session_timeout?
       @executing = @@executings[@signature] ||= Hash.new
       if params[:tag] && !params[:tag].empty? && !@tag.empty?
         return false if (params[:tag] & @tag).empty?
@@ -109,7 +108,7 @@ module ShootingStar
 
     # perform buffered executions.
     def commit
-      return false if @unbound
+      return false if @unbound || !@waiting
       @executing.each{|id, params| execute(id, params)}
       return false if @execution.empty?
       return false unless send_data(@type == 'f' ? "#{@execution}\0" :
@@ -161,29 +160,29 @@ module ShootingStar
 
     # broadcast event to clients.
     def notify(params = {})
-      return unless Channel[@channel]
+      return unless Channel[@channel_path]
       event_id = ShootingStar::timestamp
-      log "Event(#{event_id}): #{@channel}:#{params.inspect}"
-      Channel[@channel].transmit("event-#{event_id}", params)
+      log "Event(#{event_id}): #{@channel_path}:#{params.inspect}"
+      Channel[@channel_path].transmit("event-#{event_id}", params)
     end
 
     # wait for commands or events until they occur. if they're already in
     # the execution buffer, they'll be flushed and return on the spot.
     def wait_for
-      log "Wait for: #{@channel}:#{@uid}:#{@tag.join(',')}:#{@signature}"
-      if prepare_channel(@channel).join(self)
-        log "Flushed: #{@channel}:#{@uid}:#{@tag.join(',')}:#{@signature}"
-      end
       @waiting = true
+      log "Wait for: #{@channel_path}:#{@uid}:#{@tag.join(',')}:#{@signature}"
+      if prepare_channel(@channel_path).join(self)
+        log "Flushed: #{@channel_path}:#{@uid}:#{@tag.join(',')}:#{@signature}"
+      end
     end
 
     # prepare channel object.
-    def prepare_channel(channel)
-      unless Channel[channel]
-        Channel.new(channel)
-        log "Channel opened: #{channel}"
+    def prepare_channel(channel_path)
+      unless Channel[channel_path]
+        Channel.new(channel_path)
+        log "Channel opened: #{channel_path}"
       end
-      Channel[channel]
+      Channel[channel_path]
     end
 
     # add execution line to the buffer.
@@ -248,11 +247,6 @@ module ShootingStar
       </cross-domain-policy>
       EOH
       write_and_close
-    end
-
-    # establish communication with flash client.
-    def communicate_with_flash_client(path)
-      log "Communication: #{path}"
     end
   end
 end

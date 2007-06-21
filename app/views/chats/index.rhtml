@@ -16,7 +16,7 @@
 
 <%=
 meteor_strike "simple_chat/chatroom",
-  :uid => session[:name], :tag => session[:tags],
+  :uid => session[:name], :tag => session[:tags], :noflash => false,
   :event => remote_function(:update => 'user_list',
     :url => {:controller => 'chats', :action => 'user_list'},
     :after => %Q[new Effect.Highlight("user-list", {queue: 'end'})])

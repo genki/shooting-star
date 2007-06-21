@@ -2,17 +2,21 @@ require 'set'
 
 module ShootingStar
   class Channel
-    class InvalidIdError < StandardError; end
     attr_reader :path, :waiters
     @@channels = {}
 
-    def initialize(path)
-      @path = path
+    def initialize(channel_path)
+      @path = channel_path
       @waiters = Hash.new
+      @observers = Set.new
       @@channels[path] = self
     end
 
     def transmit(id, params)
+      @observers.each do |observer|
+        begin observer.nudge(params) 
+        rescue Exception; @observers.delete(observer) end
+      end
       @waiters.each do |signature, server|
         server.commit if server.respond(id, params)
       end
@@ -23,19 +27,19 @@ module ShootingStar
       server.commit
     end
 
-    def leave(server)
-      @waiters.delete(server.signature)
-    end
+    def leave(server) @waiters.delete(server.signature) end
+    def observe(observer) @observers << observer end
+    def ignore(observer) @observers.delete(observer) end
 
-    def self.[](path); @@channels[path] end
+    def self.[](channel_path); @@channels[channel_path] end
     def self.list; @@channels.keys end
     def self.sweep; @@channels.delete_if{|k,v| v.waiters.empty?} end
 
-    def self.cleanup(channel)
-      if @@channels[channel] && @@channels[channel].waiters.empty?
-        @@channels.delete(channel)
+    def self.cleanup(channel_path)
+      if @@channels[channel_path] && @@channels[channel_path].waiters.empty?
+        @@channels.delete(channel_path)
       end
-      !@@channels.include?(channel)
+      !@@channels.include?(channel_path)
     end
   end
 end

@@ -113,11 +113,11 @@ module ShootingStar
   def self.report
     puts "#{'-' * 79}\nconnections channel name\n#{'-' * 79}"
     total_connections = 0
-    shooter.channels.each do |channel|
-      count = shooter.count(channel)
-      puts "%11d %s" % [count, channel]
-      puts shooter.listeners(channel).join(',') if CONFIG.with_uid
-      puts shooter.signatures(channel).join(',') if CONFIG.with_sig
+    shooter.channels.each do |channel_path|
+      count = shooter.count(channel_path)
+      puts "%11d %s" % [count, channel_path]
+      puts shooter.listeners(channel_path).join(',') if CONFIG.with_uid
+      puts shooter.signatures(channel_path).join(',') if CONFIG.with_sig
       total_connections +=  count
     end
     puts "#{'-' * 79}\n%11d %s\n#{'-' * 79}" % [total_connections, 'TOTAL']

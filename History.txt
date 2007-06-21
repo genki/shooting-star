@@ -1,17 +1,22 @@
 *** 3.0.0 / 2007-06-22
 + 3 major enhancements:
   + Added flush client.
-  + Cleaning up source code.
   + Implemented reconnection for flash client.
+  + Server side event notification.
 
-+ 1 minor enhancement:
++ 2 minor enhancements:
   + Sending policy file in response to flash client's request.
+  + Cleaning up source code.
+
++ 1 major bugfix:
+  + Suppressed EBADF while flushing execution buffer.
 
 + 1 minor bugfix:
   + Closed a hole leaking messages.
 
 + 1 minor spec change:
   + send_message returns true if succeeded.
+  + Renamed local variable 'channel' to 'channel_path'
 
 *** 2.0.2 / 2007-06-09
 + 1 major enhancement:

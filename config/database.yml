@@ -13,7 +13,7 @@ development:
     shooter:
       - 'druby://localhost:7123'
       #- 'druby://localhost:7124'
-    random_subdomain: true
+    random_subdomain: false
 
 # Warning: The database defined as 'test' will be erased and
 # re-generated from your development database when you run 'rake'.

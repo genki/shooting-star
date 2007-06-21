@@ -10,15 +10,14 @@ module MeteorStrike
     end
 
     def meteor_strike(channel, options = {})
-      unless options[:cache] || @meteor_strike
+      if !options[:cache] && !@meteor_strike
         cc = controller.headers['Cache-Control'] || ''
         cc += ', ' unless cc.empty?
         cc += 'no-store, no-cache, must-revalidate, max-age=0, '
         cc += 'post-check=0, pre-check=0'
         controller.headers['Cache-Control'] = cc
-        @meteor_strike = 0
       end
-      @meteor_strike += 1
+      @meteor_strike ||= 0 and @meteor_strike += 1
       config = ActiveRecord::Base.configurations[RAILS_ENV]['shooting_star']
       config ||= {}
       config['server'] ||= 'localhost:8080'
@@ -40,10 +39,7 @@ module MeteorStrike
       flash_vars = [
         "channel=#{channel}", "tag=#{tag}", "uid=#{uid}", "sig=#{sig}",
         "base_uri=#{uri}", "server=#{server}"].join('&')
-      flash_code_base = ['http://fpdownload.macromedia.com/',
-        'pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0'].join('')
-      swf_path = File.join(RAILS_ROOT, 'public/meteor_strike.swf')
-      swf_timestamp = File.mtime(swf_path).to_i
+      flash_html = flash_tag(flash_vars) unless options[:noflash]
       <<-"EOH"
       <div style="position: absolute; top: -99999px; left: -99999px">
       <iframe id="#{iframe_id}" name="#{iframe_id}"></iframe>
@@ -51,24 +47,7 @@ module MeteorStrike
         action="http://#{shooting_star_uri}">
         <input name="execute" value="#{uri}/meteor/strike" />
         <input name="tag" /><input name="uid" /><input name="sig" />
-      </form>
-      <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
-       codebase="#{flash_code_base}" width="0" height="0"
-       id="meteor_strike_#{@meteor_strike}">
-      <param name="allowScriptAccess" value="sameDomain" />
-      <param name="FlashVars" value="#{flash_vars}" />
-      <param name="movie" value="/meteor_strike.swf?#{swf_timestamp}" />
-      <param name="menu" value="false" />
-      <param name="quality" value="high" />
-      <param name="devicefont" value="true" />
-      <param name="bgcolor" value="#ffffff" />
-      <embed src="/meteor_strike.swf?#{swf_timestamp}" menu="false"
-       quality="high" devicefont="true" bgcolor="#ffffff" width="0" height="0"
-       swLiveConnect="true" id="meteor_strike_#{@meteor_strike}"
-       name="meteor_strike_#{@meteor_strike}" flashvars="#{flash_vars}"
-       allowScriptAccess="sameDomain" type="application/x-shockwave-flash"
-       pluginspage="http://www.macromedia.com/go/getflashplayer" />
-      </object></div>
+      </form>#{flash_html}</div>
       <script type="text/javascript">
       //<![CDATA[
       var meteorStrike = meteorStrike || $H();
@@ -98,7 +77,8 @@ module MeteorStrike
           ms.update(UID, Array.prototype.without.apply(TAGS, tags));
         };
         try{
-          if(!flashVersion || flashVersion < 6){
+          var noflash = #{options[:noflash].to_json};
+          if(noflash || !flashVersion || flashVersion < 6){
             setTimeout(function(){ 
               var form = $("#{iframe_id}-form");
               form.uid.value = #{uid.to_json};
@@ -148,5 +128,31 @@ module MeteorStrike
       ]) unless /^get$/i === options['method']
       form_tag_without_timestamp(urlop, options, *arg, &block)
     end 
+
+    def flash_tag(flash_vars)
+      flash_code_base = ['http://fpdownload.macromedia.com/',
+        'pub/shockwave/cabs/flash/swflash.cab#version=6,0,0,0'].join('')
+      swf_path = File.join(RAILS_ROOT, 'public/meteor_strike.swf')
+      swf_timestamp = File.mtime(swf_path).to_i
+      <<-"EOH"
+      <object classid="clsid:d27cdb6e-ae6d-11cf-96b8-444553540000"
+       codebase="#{flash_code_base}" width="0" height="0"
+       id="meteor_strike_#{@meteor_strike}">
+      <param name="allowScriptAccess" value="sameDomain" />
+      <param name="FlashVars" value="#{flash_vars}" />
+      <param name="movie" value="/meteor_strike.swf?#{swf_timestamp}" />
+      <param name="menu" value="false" />
+      <param name="quality" value="high" />
+      <param name="devicefont" value="true" />
+      <param name="bgcolor" value="#ffffff" />
+      <embed src="/meteor_strike.swf?#{swf_timestamp}" menu="false"
+       quality="high" devicefont="true" bgcolor="#ffffff" width="0" height="0"
+       swLiveConnect="true" id="meteor_strike_#{@meteor_strike}"
+       name="meteor_strike_#{@meteor_strike}" flashvars="#{flash_vars}"
+       allowScriptAccess="sameDomain" type="application/x-shockwave-flash"
+       pluginspage="http://www.macromedia.com/go/getflashplayer" />
+      </object>
+      EOH
+    end
   end
 end
