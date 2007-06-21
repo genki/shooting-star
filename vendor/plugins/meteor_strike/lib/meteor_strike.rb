@@ -36,9 +36,10 @@ module MeteorStrike
       update_uri = "#{uri}/meteor/update"
       sig = Meteor.shooter.signature
       iframe_id = "meteor-strike-#{@meteor_strike}"
+      host_port = (server.split(':') << '80')[0..1].join(':')
       flash_vars = [
         "channel=#{channel}", "tag=#{tag}", "uid=#{uid}", "sig=#{sig}",
-        "base_uri=#{uri}", "server=#{server}"].join('&')
+        "base_uri=#{uri}", "server=#{host_port}"].join('&')
       flash_html = flash_tag(flash_vars) unless options[:noflash]
       <<-"EOH"
       <div style="position: absolute; top: -99999px; left: -99999px">
