@@ -13,9 +13,11 @@ module ShootingStar
     end
 
     def transmit(id, params)
-      @observers.each do |observer|
-        begin observer.nudge(params) 
-        rescue Exception; @observers.delete(observer) end
+      if event = params[:event]
+        @observers.each do |obs|
+          begin obs.__send__(event, params) if obs.respond_to?(event)
+          rescue Exception; @observers.delete(obs) end
+        end
       end
       @waiters.each do |signature, server|
         server.commit if server.respond(id, params)

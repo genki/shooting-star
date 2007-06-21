@@ -14,7 +14,7 @@
 + 1 minor bugfix:
   + Closed a hole leaking messages.
 
-+ 1 minor spec change:
++ 2 minor spec changes:
   + send_message returns true if succeeded.
   + Renamed local variable 'channel' to 'channel_path'
 
