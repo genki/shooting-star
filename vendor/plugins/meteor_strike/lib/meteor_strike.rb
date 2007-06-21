@@ -91,7 +91,12 @@ module MeteorStrike
         }catch(e){}
       });
       function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
-        if(command == 'execute') eval(args);
+        switch(command){
+        case 'execute': eval(args); break;
+        case 'event':
+          if(args == 'connect') (function(){#{options[:connected]}})();
+          break;
+        }
       }
       if(navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
         navigator.userAgent.indexOf("Windows") != -1 &&
