@@ -194,15 +194,17 @@ module ShootingStar
       query += "&" + FormEncoder.encode(params) if params
       @execution += <<-"EOH"
       (function(){
+        var ms1 = document.getElementById('meteor-strike-1');
+        var box = ms1 ? ms1.parentNode : document.body;
         var iframe = document.createElement('iframe');
-        var remove = function(){document.body.removeChild(iframe)};
+        var remove = function(){box.removeChild(iframe)};
         var timer = setTimeout(remove, #{sweep_timeout});
         iframe.onload = function(){
           clearTimeout(timer);
           setTimeout(remove, 0);
         };
         iframe.src = '#{@params['execute']}/#{id}?#{query}';
-        document.body.appendChild(iframe);
+        box.appendChild(iframe);
       })();
       EOH
     end
