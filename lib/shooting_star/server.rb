@@ -52,8 +52,9 @@ module ShootingStar
       end
       # load or create session informations
       @signature ||= @params['sig']
-      @channel_path ||= path[1..-1].split('?', 2)[0]
-      @query = "channel=#{@channel_path}&sig=#{@signature}"
+      channel_path = path[1..-1].split('?', 2)[0]
+      @channel_path ||= CGI.unescape(channel_path)
+      @query = "channel=#{channel_path}&sig=#{@signature}"
       @type = @params['__t__']
       # process verb
       if !@type

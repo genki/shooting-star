@@ -4,7 +4,7 @@ class MeteorController < ApplicationController
   after_filter :notify_execution, :only => [:strike]
 
   def strike
-    @channel = params[:channel].split('/').map{|i| CGI.escape(i)}.join('/')
+    @channel = params[:channel]
     if params[:event].blank?
       meteor = Meteor.find(params[:id])
       @javascript = meteor.javascript
