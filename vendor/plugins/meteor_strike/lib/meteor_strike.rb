@@ -77,11 +77,11 @@ module MeteorStrike
         ms.tuneOut = function(tags){
           ms.update(UID, Array.prototype.without.apply(TAGS, tags));
         };
-        ms.tuneInOut(tagsIn, tagsOut){
-          var tags =  TAGS.concat(tagsIn || []).uniq();
+        ms.tuneInOut = function(tagsIn, tagsOut){
+          var tags = TAGS.concat(tagsIn || []).uniq();
           ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
         };
-        ms.tuneOutIn(tagsOut, tagsIn){
+        ms.tuneOutIn = function(tagsOut, tagsIn){
           var tags = Array.prototype.without.apply(tags, tagsOut);
           ms.update(UID, tags.concat(tagsIn || []).uniq());
         };
