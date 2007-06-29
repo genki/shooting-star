@@ -6,7 +6,6 @@
   var javascript = #{@javascript.to_json};
   var meteorStrike = parent.parent.meteorStrike[channel];
   if(meteorStrike) meteorStrike.execute(javascript);
-  else alert('Connection is not established to the ShootingStar server.');
 })();
 }%>
 </head>

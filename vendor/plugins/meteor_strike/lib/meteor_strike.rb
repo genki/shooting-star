@@ -48,7 +48,7 @@ module MeteorStrike
         action="http://#{shooting_star_uri}">
         <input name="execute" value="#{uri}/meteor/strike" />
         <input name="tag" /><input name="uid" /><input name="sig" />
-      </form>#{flash_html}</div>
+      </form>
       <script type="text/javascript">
       //<![CDATA[
       var meteorStrike = meteorStrike || $H();
@@ -76,6 +76,14 @@ module MeteorStrike
         };
         ms.tuneOut = function(tags){
           ms.update(UID, Array.prototype.without.apply(TAGS, tags));
+        };
+        ms.tuneInOut(tagsIn, tagsOut){
+          var tags =  TAGS.concat(tagsIn || []).uniq();
+          ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
+        };
+        ms.tuneOutIn(tagsOut, tagsIn){
+          var tags = Array.prototype.without.apply(tags, tagsOut);
+          ms.update(UID, tags.concat(tagsIn || []).uniq());
         };
         try{
           var noflash = #{options[:noflash].to_json};
@@ -113,7 +121,7 @@ module MeteorStrike
           'End Sub', '</script\\>'].join(#{"\n".to_json}));
       }
       //]]>
-      </script>
+      </script>#{flash_html}</div>
       EOH
     end
 

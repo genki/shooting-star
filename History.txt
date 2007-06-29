@@ -1,3 +1,10 @@
+*** 3.0.1 / 2007-06-26
++ 1 major enhancement:
+  + Added 2 meteor_strike functions 'tuneInOut' and 'tuneOutIn'.
+
++ 1 minor bugfix:
+  + Corrected initialization order of meteor_strike DOM elements.
+
 *** 3.0.0 / 2007-06-22
 + 3 major enhancements:
   + Added flush client.
