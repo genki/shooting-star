@@ -82,7 +82,7 @@ module MeteorStrike
           ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
         };
         ms.tuneOutIn = function(tagsOut, tagsIn){
-          var tags = Array.prototype.without.apply(tags, tagsOut);
+          var tags = Array.prototype.without.apply(TAGS, tagsOut);
           ms.update(UID, tags.concat(tagsIn || []).uniq());
         };
         try{
