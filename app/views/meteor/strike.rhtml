@@ -4,8 +4,12 @@
 (function(){
   var channel = #{@channel.to_json};
   var javascript = #{@javascript.to_json};
-  var meteorStrike = parent.parent.meteorStrike[channel];
-  if(meteorStrike) meteorStrike.execute(javascript);
+  var execute = function(){
+    var meteorStrike = parent.parent.meteorStrike[channel];
+    if(meteorStrike) meteorStrike.execute(javascript);
+    else setTimeout(execute, 0);
+  };
+  execute();
 })();
 }%>
 </head>

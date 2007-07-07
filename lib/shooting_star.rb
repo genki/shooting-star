@@ -3,11 +3,12 @@ require 'asteroid'
 require 'drb/drb'
 require 'yaml'
 require 'ftools'
+require 'fileutils'
 require 'shooting_star/config'
 require 'shooting_star/shooter'
 
 module ShootingStar
-  VERSION = '3.0.1'
+  VERSION = '3.1.0'
   CONFIG = Config.new(
     :config => 'config/shooting_star.yml',
     :pid_file => 'log/shooting_star.pid',
@@ -33,9 +34,9 @@ module ShootingStar
 
   # install config file and plugin
   def self.init
-    base_dir = CONFIG.directory || `pwd`.chop
+    base_dir = CONFIG.directory || FileUtils.pwd.chop
     config_dir = File.join(base_dir, 'config')
-    `mkdir -p #{config_dir}` unless File.exist? config_dir
+    FileUtils.mkdir_p config_dir unless File.exist?(config_dir)
     config_file = File.join(config_dir, 'shooting_star.yml')
     unless File.exist? config_file
       open(config_file, 'w') do |file|
@@ -46,14 +47,14 @@ module ShootingStar
       end
     end
     log_dir = File.join(base_dir, 'log')
-    `mkdir -p #{log_dir}` unless File.exist? log_dir
+    FileUtils.mkdir_p(log_dir) unless File.exist?(log_dir)
     plugin_dir = File.join(base_dir, 'vendor/plugins')
-    `mkdir -p #{plugin_dir}` unless File.exist? plugin_dir
+    FileUtils.mkdir_p(plugin_dir) unless File.exist?(plugin_dir)
     meteor_strike_dir = File.join(plugin_dir, 'meteor_strike')
     src_dir = File.join(File.dirname(__FILE__),
       '../vendor/plugins/meteor_strike')
-    `mkdir -p #{meteor_strike_dir}`
-    `cp -Rf #{src_dir}/* #{meteor_strike_dir}`
+    FileUtils.mkdir_p(meteor_strike_dir)
+    FileUtils.cp_r(Dir.glob("#{src_dir}/*"), meteor_strike_dir)
   end
 
   def self.start(&block)
