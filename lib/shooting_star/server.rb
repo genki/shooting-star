@@ -61,13 +61,13 @@ module ShootingStar
         make_connection(path)
       else
         prepare_channel(@channel_path)
+        @uid = @@uids[@signature] ||= @params['uid']
+        @tag = @@tags[@signature] ||=
+          (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
         unless @@servers[@signature] || @type == 'rc'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
           log "Connected: #{@uid}"
         end
-        @uid = @@uids[@signature] ||= @params['uid']
-        @tag = @@tags[@signature] ||=
-          (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
         @executing = @@executings[@signature] ||= Hash.new
         @@servers[@signature] = self
         wait_for

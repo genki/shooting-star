@@ -1,4 +1,4 @@
-*** 3.1.0 / 2007-07-09
+*** 3.1.0 / 2007-07-10
 + 3 major enhancements:
   + Added 2 meteor_strike functions 'tuneInOut' and 'tuneOutIn'.
   + Automatic activation/deactivation of flash client.
@@ -7,9 +7,10 @@
 + 1 minor enhancement:
   + FileUtil is used instead of `shell command`.
 
-+ 2 minor bugfixes:
++ 3 minor bugfixes:
   + Corrected initialization order of meteor_strike DOM elements.
   + Managed uncertainty situation of JS/Flash initialization.
+  + Applied a patch from Koizuka.
 
 *** 3.0.0 / 2007-06-22
 + 3 major enhancements:
