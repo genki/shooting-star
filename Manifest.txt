@@ -6,7 +6,6 @@ bin/shooting_star
 lib/shooting_star.rb
 lib/shooting_star/server.rb
 lib/shooting_star/shooter.rb
-lib/shooting_star/worker.rb
 lib/shooting_star/channel.rb
 lib/shooting_star/config.rb
 lib/form_encoder.rb

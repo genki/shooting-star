@@ -7,13 +7,12 @@ require 'fileutils'
 require 'erb'
 require 'shooting_star/config'
 require 'shooting_star/shooter'
-require 'shooting_star/worker'
 
 module ShootingStar
   VERSION = '3.2.0'
   CONFIG = Config.new(
     :config => 'config/shooting_star.yml',
-    :pid_file => 'log/shooting_star.pid',
+    :pid_file => 'tmp/pids/shooting_star.pid',
     :log_file => 'log/shooting_star.log',
     :daemon => false,
     :slient => false,
@@ -52,6 +51,8 @@ module ShootingStar
     end
     log_dir = File.join(base_dir, 'log')
     FileUtils.mkdir_p(log_dir) unless File.exist?(log_dir)
+    pid_dir = File.join(base_dir, 'tmp/pids')
+    FileUtils.mkdir_p(pid_dir) unless File.exist?(pid_dir)
     plugin_dir = File.join(base_dir, 'vendor/plugins')
     FileUtils.mkdir_p(plugin_dir) unless File.exist?(plugin_dir)
     meteor_strike_dir = File.join(plugin_dir, 'meteor_strike')
@@ -80,7 +81,6 @@ module ShootingStar
       Signal.trap(:INT) do
         Asteroid::stop
         @@druby.stop_service
-        Worker.join if CONFIG.worker
         log "shooting_star service stopped."
         File.rm_f(CONFIG.pid_file)
       end
@@ -91,7 +91,6 @@ module ShootingStar
       log "shooting_star service started."
       Process.kill(:ALRM, Process.ppid) if CONFIG.daemon
       block.call if block
-      Worker.spawn(CONFIG.worker.population) if CONFIG.worker
     end
   end
 

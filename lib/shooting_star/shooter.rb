@@ -10,13 +10,6 @@ module ShootingStar
       Channel[channel_path].transmit(id, :tag => tag)
     end
 
-    # pass a job to worker
-    def pass(options = {}, &block)
-      job = {:block => block}.merge(options)
-      log "Past: " + job.inspect
-      Worker.work(job)
-    end
-
     # update client properties
     def update(sig, uid, tag)
       ::ShootingStar::Server[sig].update(uid, tag || [])

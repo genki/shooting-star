@@ -4,7 +4,8 @@ class Meteor < ActiveRecord::Base
   class Shooter
     COUNTERS = [:count, :count_with]
     LISTINGS = [:listeners, :listeners_with, :channels, :signatures]
-    ROUNDROBINS = [:pass]
+    ROUNDROBINS = [:signature]
+    MAX_RETRY = 10
     DEFAULT_SHOOTER_URI = 'druby://localhost:7123'
 
     def initialize(config)
@@ -44,6 +45,8 @@ class Meteor < ActiveRecord::Base
     def round_robin(method, *args, &block)
       @round_robin_counter = (@round_robin_counter.to_i + 1) % @shooters.size
       @shooters[@round_robin_counter].__send__(method, *args, &block)
+    rescue Exception
+      (@retry_counter = @retry_counter.to_i + 1) < MAX_RETRY ? retry : raise
     end
   end
 

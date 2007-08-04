@@ -21,7 +21,7 @@ namespace :gem do
     hoe.description = hoe.paragraphs_of('README.txt', 2..5).join("\n\n")
     hoe.url = hoe.paragraphs_of('README.txt', 0).first.split(/\n/)[1..-1]
     hoe.changes = hoe.paragraphs_of('History.txt', 0..1).join("\n\n")
-    hoe.extra_deps = [['json']]
+    hoe.extra_deps = [['json'], ['PriorityQueue']]
     hoe.spec_extras = {
       :extensions => 'ext/extconf.rb',
       :rdoc_options => ['-S',
