@@ -4,11 +4,13 @@ require 'drb/drb'
 require 'yaml'
 require 'ftools'
 require 'fileutils'
+require 'erb'
 require 'shooting_star/config'
 require 'shooting_star/shooter'
+require 'shooting_star/worker'
 
 module ShootingStar
-  VERSION = '3.1.0'
+  VERSION = '3.2.0'
   CONFIG = Config.new(
     :config => 'config/shooting_star.yml',
     :pid_file => 'log/shooting_star.pid',
@@ -24,7 +26,9 @@ module ShootingStar
       @log_file = nil
     end
     config_file = options[:config] || CONFIG.config
-    CONFIG.merge!(YAML.load_file(config_file)) if File.exist?(config_file)
+    if File.exist?(config_file)
+      CONFIG.merge!(YAML.load(ERB.new(open(config_file).read).result))
+    end
     CONFIG.merge!(options)
   end
 
@@ -34,7 +38,7 @@ module ShootingStar
 
   # install config file and plugin
   def self.init
-    base_dir = CONFIG.directory || FileUtils.pwd.chop
+    base_dir = CONFIG.directory || FileUtils.pwd
     config_dir = File.join(base_dir, 'config')
     FileUtils.mkdir_p config_dir unless File.exist?(config_dir)
     config_file = File.join(config_dir, 'shooting_star.yml')
@@ -53,8 +57,7 @@ module ShootingStar
     meteor_strike_dir = File.join(plugin_dir, 'meteor_strike')
     src_dir = File.join(File.dirname(__FILE__),
       '../vendor/plugins/meteor_strike')
-    FileUtils.mkdir_p(meteor_strike_dir)
-    FileUtils.cp_r(Dir.glob("#{src_dir}/*"), meteor_strike_dir)
+    FileUtils.cp_r(src_dir, plugin_dir)
   end
 
   def self.start(&block)
@@ -77,6 +80,7 @@ module ShootingStar
       Signal.trap(:INT) do
         Asteroid::stop
         @@druby.stop_service
+        Worker.join if CONFIG.worker
         log "shooting_star service stopped."
         File.rm_f(CONFIG.pid_file)
       end
@@ -87,6 +91,7 @@ module ShootingStar
       log "shooting_star service started."
       Process.kill(:ALRM, Process.ppid) if CONFIG.daemon
       block.call if block
+      Worker.spawn(CONFIG.worker.population) if CONFIG.worker
     end
   end
 

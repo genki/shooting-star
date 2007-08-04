@@ -4,19 +4,25 @@ class Meteor < ActiveRecord::Base
   class Shooter
     COUNTERS = [:count, :count_with]
     LISTINGS = [:listeners, :listeners_with, :channels, :signatures]
+    ROUNDROBINS = [:pass]
+    DEFAULT_SHOOTER_URI = 'druby://localhost:7123'
 
     def initialize(config)
-      config['shooting_star'] ||= {'shooter' => 'druby://localhost:7123'}
+      config['shooting_star'] ||= {'shooter' => DEFAULT_SHOOTER_URI}
       uris = config['shooting_star']['shooter']
       @shooters = [uris].flatten.map{|uri| DRbObject.new_with_uri(uri)}
     end
 
     COUNTERS.each do |m|
-      define_method(m){|*a| call(m, *a).inject(0){|r,c| r += c}}
+      eval "def #{m}(*a, &b) call('#{m}',*a,&b).inject(0){|r,c| r+=c} end"
     end
 
     LISTINGS.each do |m|
-      define_method(m){|*a| call(m, *a).inject([]){|r,c| r.concat c}}
+      eval "def #{m}(*a, &b) call('#{m}',*a,&b).inject([]){|r,c|r.concat c} end"
+    end
+    
+    ROUNDROBINS.each do |m|
+      eval "def #{m}(*a, &b) round_robin('#{m}', *a, &b) end"
     end
 
     def method_missing(method, *args, &block)
@@ -34,10 +40,15 @@ class Meteor < ActiveRecord::Base
         result
       end || []
     end
+
+    def round_robin(method, *args, &block)
+      @round_robin_counter = (@round_robin_counter.to_i + 1) % @shooters.size
+      @shooters[@round_robin_counter].__send__(method, *args, &block)
+    end
   end
 
   def self.shooter
-    @@shooter ||= ::Meteor::Shooter.new(configurations[RAILS_ENV])
+    @@shooter ||= DRb.start_service && Shooter.new(configurations[RAILS_ENV])
   end
 
   def self.shoot(channel, javascript, tag = [])
@@ -45,5 +56,9 @@ class Meteor < ActiveRecord::Base
     returning(meteor.save) do |succeeded|
       shooter.shoot(channel, meteor.id, tag) if succeeded
     end
+  end
+
+  def self.pass(options = {}, &block)
+    @@shooter.pass(Thread.new{Thread.stop; block.call}, options)
   end
 end

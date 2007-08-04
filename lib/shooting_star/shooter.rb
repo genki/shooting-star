@@ -3,11 +3,18 @@ require 'shooting_star/channel'
 # DRbObject
 module ShootingStar
   class Shooter
-    # broadcast message
+    # broadcast/multicast message
     def shoot(channel_path, id, tag)
       return unless Channel[channel_path]
       log "Shot: #{channel_path}:#{id}:#{tag.join(',')}"
       Channel[channel_path].transmit(id, :tag => tag)
+    end
+
+    # pass a job to worker
+    def pass(options = {}, &block)
+      job = {:block => block}.merge(options)
+      log "Past: " + job.inspect
+      Worker.work(job)
     end
 
     # update client properties
