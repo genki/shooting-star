@@ -32,7 +32,7 @@ module ShootingStar
   end
 
   def self.shooter
-    @@shooter ||= DRbObject.new_with_uri(CONFIG.shooter.uri)
+    @@shooter ||= DRb.start_service && DRbObject.new(nil, CONFIG.shooter.uri)
   end
 
   # install config file and plugin
@@ -116,7 +116,7 @@ module ShootingStar
   end
 
   def self.report
-    puts "#{'-' * 79}\nconnections channel name\n#{'-' * 79}"
+    puts "#{'-' * 79}\nconnections channel_name\n#{'-' * 79}"
     total_connections = 0
     shooter.channels.each do |channel_path|
       count = shooter.count(channel_path)
@@ -126,6 +126,13 @@ module ShootingStar
       total_connections +=  count
     end
     puts "#{'-' * 79}\n%11d %s\n#{'-' * 79}" % [total_connections, 'TOTAL']
+    total_observers = 0
+    puts "observers   channel_name\n#{'-' * 79}"
+    shooter.observers.each do |channel_path, observers|
+      puts "%11d %s" % [observers.size, channel_path]
+      total_observers += observers.size
+    end
+    puts "#{'-' * 79}\n%11d %s\n#{'-' * 79}" % [total_observers, 'TOTAL']
   end
 
   def self.timestamp

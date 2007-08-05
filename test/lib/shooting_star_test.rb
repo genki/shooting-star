@@ -6,14 +6,15 @@ require 'thread'
 $command_line = 'echo "testing"'
 
 class ShootingStarTest < Test::Unit::TestCase
-  module TestObserver
-    def self.enter(params) @params = params end
-    def self.params; @params end
+  class TestObserver
+    include DRb::DRbUndumped
+    def enter(params) @params = params end
+    def params; @params end
   end
 
   def setup
     @config = ShootingStar.configure :silent => true,
-      :pid_file => 'log/shooting_star.test.pid',
+      :pid_file => 'tmp/pids/shooting_star.test.pid',
       :log_file => 'log/shooting_star.test.log',
       :server => {:host => '127.0.0.1', :port => 8081},
       :shooter => {:uri => 'druby://127.0.0.1:7124'}
@@ -69,22 +70,25 @@ class ShootingStarTest < Test::Unit::TestCase
     assert_not_nil client2
     shooter = DRbObject.new_with_uri('druby://127.0.0.1:7124')
     assert_not_nil shooter
-    shooter.observe('test/channel', TestObserver)
+    observer = TestObserver.new
+    assert_not_nil observer
+    shooter.observe('test/channel', observer)
     mutex = Mutex.new
     mutex.lock
-    assert_nil TestObserver.params
+    assert_nil observer.params
     Thread.new do
       send(client1, "POST", "test/channel", "#{@query}&__t__=c")
       mutex.unlock
     end
     mutex.lock
-    assert_nil TestObserver.params
+    assert_nil observer.params
     Thread.new do
       send(client2, "POST", "test/channel", "#{@query2}&__t__=c")
       mutex.unlock
     end
     mutex.lock
-    assert_equal :enter, TestObserver.params[:event]
+    assert_not_nil observer.params
+    assert_equal :enter, observer.params[:event]
     assert_not_nil result1 = client1.read
     assert_not_nil result1.index('meteor/strike/event-')
     shooter.shoot("test/channel", 12, [])
@@ -103,14 +107,14 @@ class ShootingStarTest < Test::Unit::TestCase
     assert_not_nil shooter
   end
 
-  def test_c10k_problem
-    bin = File.join(RAILS_ROOT, 'bin/test_c10k_problem')
-    src = File.join(File.dirname(__FILE__), 'test_c10k_problem.c')
-    if !File.exist?(bin) || File.mtime(src) > File.mtime(bin)
-      system "gcc #{src} -o #{bin}"
-    end
-    system bin 
-  end
+  #def test_c10k_problem
+  #  bin = File.join(RAILS_ROOT, 'bin/test_c10k_problem')
+  #  src = File.join(File.dirname(__FILE__), 'test_c10k_problem.c')
+  #  if !File.exist?(bin) || File.mtime(src) > File.mtime(bin)
+  #    system "gcc #{src} -o #{bin}"
+  #  end
+  #  system bin 
+  #end
 
 private
   def send(client, method, path, body)

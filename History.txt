@@ -2,8 +2,9 @@
 + 1 minor enhancement:
   + shooting_star.yml is processed by ERB.
   - Heard beat.
+  - Updated implementation of observers.
 + 1 minor spec change:
-  + Changed default pid file location from log/ to tmp/.
+  + Changed default pid file location from log/ to tmp/pids/.
 
 *** 3.1.0 / 2007-07-18
 + 1 major enhancement:

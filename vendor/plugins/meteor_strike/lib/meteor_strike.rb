@@ -1,4 +1,4 @@
-require 'uri'
+require 'set'
 require 'md5'
 
 module MeteorStrike
@@ -18,12 +18,8 @@ module MeteorStrike
         controller.headers['Cache-Control'] = cc
       end
       @meteor_strike ||= 0 and @meteor_strike += 1
-      config = ActiveRecord::Base.configurations[RAILS_ENV]['shooting_star']
-      config ||= {}
-      config['server'] ||= 'localhost:8080'
-      config['shooter'] ||= 'druby://localhost:7123'
-      server = config['server'].kind_of?(Array) ?
-        config['server'][rand(config['server'].length)] : config['server']
+      config = Meteor::config
+      server = Meteor::server
       shooting_star_uri = "#{server}/#{channel}"
       if config['random_subdomain'] && /[A-z]/ === server
         subdomain = (1..6).map{(rand(26)+?a).chr}.to_s

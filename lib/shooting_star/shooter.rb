@@ -4,10 +4,10 @@ require 'shooting_star/channel'
 module ShootingStar
   class Shooter
     # broadcast/multicast message
-    def shoot(channel_path, id, tag)
+    def shoot(channel_path, id, tag, options = {})
       return unless Channel[channel_path]
-      log "Shot: #{channel_path}:#{id}:#{tag.join(',')}"
-      Channel[channel_path].transmit(id, :tag => tag)
+      log "Shot: #{channel_path}:#{id}:#{tag.join(',')}:#{options}"
+      Channel[channel_path].transmit(id, options.merge(:tag => tag))
     end
 
     # update client properties
@@ -18,6 +18,7 @@ module ShootingStar
 
     def signature; ShootingStar::timestamp end
     def channels; Channel.list end
+    def observers; Channel.observers end
     def sweep; Channel.sweep end
 
     # count up listeners
@@ -56,12 +57,8 @@ module ShootingStar
 
     # observe server side events
     def observe(channel_path, observer)
-      Channel[channel_path].observe(observer)
-    end
-
-    # ignore server side events
-    def ignore(channel_path, observer)
-      Channel[channel_path].ignore(observer)
+      Channel.observe(channel_path, observer)
+    rescue Exception 
     end
 
   private
