@@ -24,6 +24,8 @@ vendor/plugins/meteor_strike/Rakefile
 vendor/plugins/meteor_strike/init.rb
 vendor/plugins/meteor_strike/lib
 vendor/plugins/meteor_strike/lib/meteor_strike.rb
+vendor/plugins/meteor_strike/lib/meteor_strike
+vendor/plugins/meteor_strike/lib/meteor_strike/helper.rb
 vendor/plugins/meteor_strike/test
 vendor/plugins/meteor_strike/test/meteor_strike_test.rb
 vendor/plugins/meteor_strike/generators

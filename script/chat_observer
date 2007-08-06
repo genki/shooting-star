@@ -1,0 +1,23 @@
+#!/usr/bin/env ruby
+require File.dirname(__FILE__) + '/../config/boot'
+require File.dirname(__FILE__) + '/../config/environment'
+require 'drb/drb'
+
+class ChatObserver
+  include DRb::DRbUndumped
+
+  def name; 'simple_chat/chatroom observer' end
+
+  def enter(params)
+    puts "ChatObserver:"
+    puts params.inspect
+  end
+
+  def leave(params)
+    puts "ChatObserver:"
+    puts params.inspect
+  end
+end
+
+Meteor::shooter.observe('simple_chat/chatroom', ChatObserver.new)
+DRb.thread.join

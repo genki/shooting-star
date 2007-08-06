@@ -1,5 +1,4 @@
 require 'drb/drb'
-require 'set'
 
 class Meteor < ActiveRecord::Base
   class Shooter
@@ -7,6 +6,7 @@ class Meteor < ActiveRecord::Base
     LISTINGS = [:listeners, :listeners_with, :channels, :signatures]
     EITHEROFS = [:signature]
     MAX_RETRY = 10
+    DEFAULT_SERVER_URI = 'localhost:8080'
     DEFAULT_SHOOTER_URI = 'druby://localhost:7123'
 
     def initialize(config)
@@ -53,8 +53,8 @@ class Meteor < ActiveRecord::Base
 
   def self.config
     returning(configurations[RAILS_ENV]['shooting_star'] || {}) do |config|
-      config['server'] ||= 'localhost:8080'
-      config['shooter'] ||= 'druby://localhost:7123'
+      config['server'] ||= DEFAULT_SERVER_URI
+      config['shooter'] ||= DEFAULT_SHOOTER_URI
     end
   end
 

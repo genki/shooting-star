@@ -8,6 +8,7 @@ $command_line = 'echo "testing"'
 class ShootingStarTest < Test::Unit::TestCase
   class TestObserver
     include DRb::DRbUndumped
+    def name; 'test-observer' end
     def enter(params) @params = params end
     def params; @params end
   end
@@ -107,14 +108,14 @@ class ShootingStarTest < Test::Unit::TestCase
     assert_not_nil shooter
   end
 
-  #def test_c10k_problem
-  #  bin = File.join(RAILS_ROOT, 'bin/test_c10k_problem')
-  #  src = File.join(File.dirname(__FILE__), 'test_c10k_problem.c')
-  #  if !File.exist?(bin) || File.mtime(src) > File.mtime(bin)
-  #    system "gcc #{src} -o #{bin}"
-  #  end
-  #  system bin 
-  #end
+  def test_c10k_problem
+    bin = File.join(RAILS_ROOT, 'bin/test_c10k_problem')
+    src = File.join(File.dirname(__FILE__), 'test_c10k_problem.c')
+    if !File.exist?(bin) || File.mtime(src) > File.mtime(bin)
+      system "gcc #{src} -o #{bin}"
+    end
+    system bin 
+  end
 
 private
   def send(client, method, path, body)

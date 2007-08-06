@@ -165,6 +165,8 @@ module ShootingStar
       event_id = ShootingStar::timestamp
       log "Event(#{event_id}): #{@channel_path}:#{params.inspect}"
       Channel[@channel_path].transmit("event-#{event_id}", params)
+    rescue Exception => e
+      log "ERROR: #{e.message}\n#{e.backtrace.join("\n")}"
     end
 
     # wait for commands or events until they occur. if they're already in

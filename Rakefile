@@ -55,3 +55,6 @@ end
 
 desc 'test all tests'
 task 'test:all' => [:test, 'test:plugins', 'test:exts', 'test:libs']
+
+desc 'default task'
+task :default => 'test:all'
