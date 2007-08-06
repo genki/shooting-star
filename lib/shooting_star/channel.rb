@@ -18,7 +18,7 @@ module ShootingStar
         end
         observers.each do |name, obs|
           begin obs.__send__(event, params) if obs.respond_to?(event)
-          rescue Exception; Channel.ignore(@path, obs) end
+          rescue Exception; Channel.ignore(@path, name) end
         end if observers
       end
       @waiters.each do |signature, server|
@@ -41,9 +41,9 @@ module ShootingStar
       @@mutex.synchronize{@@observers[channel_path][observer.name] = observer}
     end
 
-    def self.ignore(channel_path, observer)
+    def self.ignore(channel_path, name)
       @@mutex.synchronize do
-        @@observers[channel_path].delete(observer.name)
+        @@observers[channel_path].delete(name)
         @@observers.delete(channel_path) if @@observers[channel_path].empty?
       end
     end
