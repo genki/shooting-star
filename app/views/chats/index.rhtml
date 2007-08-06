@@ -15,9 +15,21 @@
 </ul>
 
 <%=
-meteor_strike "simple_chat/chatroom",
-  :uid => session[:name], :tag => session[:tags], :noflash => false,
-  :event => remote_function(:update => 'user_list',
+  user_list_updater = remote_function(:update => 'user_list',
     :url => {:controller => 'chats', :action => 'user_list'},
     :after => %Q[new Effect.Highlight("user-list", {queue: 'end'})])
+  meteor_strike "simple_chat/chatroom",
+    :uid => session[:name], :tag => session[:tags], :noflash => false,
+    :event => %Q{
+      switch(params.event){
+      case 'init':
+        new Ajax.Updater('chat-list', '/chats/connection', {
+          insertion: Insertion.Top, parameters: {type: params.type}});
+        break;
+      case 'enter':
+      case 'leave':
+        (function(){#{user_list_updater}})();
+        break;
+      }
+    }
 %>

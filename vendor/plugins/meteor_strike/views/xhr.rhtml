@@ -3,12 +3,12 @@
   <form id="<%= iframe_id %>-form" target="<%= iframe_id %>" method="POST"
     action="http://<%= shooting_star_uri %>">
     <input name="execute" value="<%= uri %>/meteor/strike" />
-    <input name="tag" />
-    <input name="uid" />
-    <input name="sig" />
+    <input name="tag" /><input name="uid" /><input name="sig" />
   </form>
   <%= javascript_tag %Q{
     var meteorStrike = meteorStrike || $H();
+    meteorStrike.flashVersion = (#{options[:noflash].to_json}) ||
+      typeof flashVersion == 'undefined' ? 0 : flashVersion;
     Event.observe(window, 'load', function(){
       var channel = #{channel.to_json};
       var UID = #{uid.to_json}, TAGS = #{tags.to_json};
@@ -20,7 +20,10 @@
       ms.getTags = function(){return TAGS};
       ms.getUid = function(){return UID};
       ms.execute = function(js){eval(js)};
-      ms.event = function(params){#{options[:event]}};
+      ms.event = function(params){
+        if(params.event == 'init') ms.connection = params.type;
+        (function(){#{options[:event]}})();
+      };
       ms.update = function(uid, tags){
         new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
           channel: channel, uid: uid || UID,
@@ -42,19 +45,15 @@
         var tags = Array.prototype.without.apply(TAGS, tagsOut);
         ms.update(UID, tags.concat(tagsIn || []).uniq());
       };
-      try{
-        var noflash = #{options[:noflash].to_json};
-        if(noflash || !flashVersion || flashVersion < 6){
-          setTimeout(function(){ 
-            var form = $("#{iframe_id}-form");
-            form.uid.value = #{uid.to_json};
-            form.tag.value = #{tag.to_json};
-            form.sig.value = #{sig.to_json};
-            form.submit();
-            setTimeout(function(){#{options[:connected]}}, 0);
-          }, 0);
-        }
-      }catch(e){}
+      setTimeout(ms.connector = function(){ 
+        if(ms.connection) return;
+        var form = $("#{iframe_id}-form");
+        form.uid.value = #{uid.to_json};
+        form.tag.value = #{tag.to_json};
+        form.sig.value = #{sig.to_json};
+        form.submit();
+        setTimeout(ms.connector, 3000);
+      }, 0);
     });
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
       switch(command){
@@ -77,6 +76,6 @@
          '_DoFSCommand(command, args)'].join(''),
         'End Sub', '</script\\>'].join(#{"\n".to_json}));
     }
+    if(meteorStrike.flashVersion >= 6) document.write(#{@flash_html.to_json});
   } %>
-  <%= @flash_html %>
 </div>

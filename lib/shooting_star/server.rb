@@ -216,9 +216,15 @@ module ShootingStar
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
+      query = @query.sub(%r[\&sig=\d+], '')
+      query += "&" + FormEncoder.encode(:event => :init, :type => :xhr)
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
-      <html><head><script type="text/javascript" src="#{assets}"></script>
+      <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+       "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+      <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en"><head>
+      <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
+      <script type="text/javascript" src="#{assets}"></script>
       <script type="text/javascript">
       //<![CDATA[
       var connect = function(reconnect)
@@ -237,7 +243,9 @@ module ShootingStar
       };
       setTimeout(function(){connect(false)}, 0);
       //]]>
-      </script></head><body></body></html>
+      </script></head><body>
+        <iframe src="#{@params['execute']}/0?#{query}"></iframe>
+      </body></html>
       EOH
     rescue Exception
     ensure

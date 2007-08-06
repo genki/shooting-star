@@ -1,15 +1,18 @@
 *** 3.2.0 / 2007-07-18
-+ 0 major enhancements:
-  - Automatic activation/deactivation of flash client.
++ 1 major enhancement:
+  + Automatic activation/deactivation of flash client.
   - Serialized event execution.
-+ 4 minor enhancements:
++ 5 minor enhancements:
   + shooting_star.yml is processed by ERB.
   + Updated implementation of observers.
   + Added sample chat observer script.
   + Separated views of xhr and flash html into views/.
-  - Heard beat.
-+ 1 minor spec change:
+  + Added an event which will fire when connection is established.
+  - Heart beat.
++ 2 minor spec changes:
   + Changed default pid file location from log/ to tmp/pids/.
+  + options[:connected] obsoleted.
+    Please use options[:event] instead.
 
 *** 3.1.0 / 2007-07-18
 + 1 major enhancement:

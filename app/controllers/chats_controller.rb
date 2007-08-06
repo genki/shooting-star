@@ -41,6 +41,12 @@ class ChatsController < ApplicationController
     render :nothing => true unless performed?
   end
 
+  def connection
+    @chat = Chat.new(:name => '* system *', :created_at => Time.now,
+      :message => "connection established on #{params[:type]}.")
+    render :action => 'show'
+  end
+
   def user_list
     @names = Meteor.shooter.listeners("simple_chat/chatroom", session[:tags])
     @names |= [session[:name]]
