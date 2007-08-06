@@ -2,10 +2,11 @@
 + 0 major enhancements:
   - Automatic activation/deactivation of flash client.
   - Serialized event execution.
-+ 3 minor enhancements:
++ 4 minor enhancements:
   + shooting_star.yml is processed by ERB.
   + Updated implementation of observers.
   + Added sample chat observer script.
+  + Separated views of xhr and flash html into views/.
   - Heard beat.
 + 1 minor spec change:
   + Changed default pid file location from log/ to tmp/pids/.

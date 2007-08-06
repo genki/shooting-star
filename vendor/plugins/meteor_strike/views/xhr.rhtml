@@ -1,0 +1,82 @@
+<div style="position: absolute; top: -99999px; left: -99999px">
+  <iframe id="<%= iframe_id %>" name="<%= iframe_id %>"></iframe>
+  <form id="<%= iframe_id %>-form" target="<%= iframe_id %>" method="POST"
+    action="http://<%= shooting_star_uri %>">
+    <input name="execute" value="<%= uri %>/meteor/strike" />
+    <input name="tag" />
+    <input name="uid" />
+    <input name="sig" />
+  </form>
+  <%= javascript_tag %Q{
+    var meteorStrike = meteorStrike || $H();
+    Event.observe(window, 'load', function(){
+      var channel = #{channel.to_json};
+      var UID = #{uid.to_json}, TAGS = #{tags.to_json};
+      var encodeTags = function(tags){
+        var encode = function(i){return encodeURIComponent(i)};
+        return $A(tags).uniq().map(encode).join(',');
+      };
+      var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
+      ms.getTags = function(){return TAGS};
+      ms.getUid = function(){return UID};
+      ms.execute = function(js){eval(js)};
+      ms.event = function(params){#{options[:event]}};
+      ms.update = function(uid, tags){
+        new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
+          channel: channel, uid: uid || UID,
+          tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
+        }).toQueryString(), asynchronous: true});
+        UID = uid, TAGS = tags;
+      };
+      ms.tuneIn = function(tags){
+        ms.update(UID, TAGS.concat(tags || []).uniq());
+      };
+      ms.tuneOut = function(tags){
+        ms.update(UID, Array.prototype.without.apply(TAGS, tags));
+      };
+      ms.tuneInOut = function(tagsIn, tagsOut){
+        var tags = TAGS.concat(tagsIn || []).uniq();
+        ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
+      };
+      ms.tuneOutIn = function(tagsOut, tagsIn){
+        var tags = Array.prototype.without.apply(TAGS, tagsOut);
+        ms.update(UID, tags.concat(tagsIn || []).uniq());
+      };
+      try{
+        var noflash = #{options[:noflash].to_json};
+        if(noflash || !flashVersion || flashVersion < 6){
+          setTimeout(function(){ 
+            var form = $("#{iframe_id}-form");
+            form.uid.value = #{uid.to_json};
+            form.tag.value = #{tag.to_json};
+            form.sig.value = #{sig.to_json};
+            form.submit();
+            setTimeout(function(){#{options[:connected]}}, 0);
+          }, 0);
+        }
+      }catch(e){}
+    });
+    function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
+      switch(command){
+      case 'execute': eval(args); break;
+      case 'event':
+        if(args == 'connect') (function(){#{options[:connected]}})();
+        break;
+      }
+    }
+    if(navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
+      navigator.userAgent.indexOf("Windows") != -1 &&
+      navigator.userAgent.indexOf("Windows 3.1") == -1)
+    {
+      document.write([
+        '<script language="VBScript"\\>',
+        'On Error Resume Next',
+        ['Sub meteor_strike_', #{@meteor_strike},
+         '_FSCommand(ByVal command, ByVal args)'].join(''),
+        ['  Call meteor_strike_', #{@meteor_strike},
+         '_DoFSCommand(command, args)'].join(''),
+        'End Sub', '</script\\>'].join(#{"\n".to_json}));
+    }
+  } %>
+  <%= @flash_html %>
+</div>
