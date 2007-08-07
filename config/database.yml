@@ -8,7 +8,7 @@ development:
     #server: 'localhost:8080'
     #shooter: 'druby://localhost:7123'
     server:
-      - 'localhost:8088'
+      - 'localhost:8080'
       #- 'localhost:8081'
     shooter:
       - 'druby://localhost:7123'
