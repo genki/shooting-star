@@ -37,7 +37,7 @@ desc 'default gem task.'
 task :gem => 'gem:default'
 
 desc 'update generator template files.'
-task 'update_generator_template_files' do
+task 'update_generator_template_files' => :swf do
   templates = 'vendor/plugins/meteor_strike/generators/meteor/templates'
   cp 'app/controllers/meteor_controller.rb',
     templates + '/controller.rb'
@@ -51,6 +51,8 @@ task 'update_generator_template_files' do
     templates + '/unit_test.rb'
   cp 'test/functional/meteor_controller_test.rb',
     templates + '/functional_test.rb'
+  cp 'public/meteor_strike.swf',
+    templates + '/meteor_strike.swf'
 end
 
 desc 'test all tests'
@@ -58,3 +60,12 @@ task 'test:all' => [:test, 'test:plugins', 'test:exts', 'test:libs']
 
 desc 'default task'
 task :default => 'test:all'
+
+desc 'make swf file'
+task :swf => 'public/meteor_strike.swf'
+
+file 'public/meteor_strike.swf' => 'as/meteor_strike.as' do
+  sh ['mtasc -version 6 -header 300:300:30',
+      '-swf public/meteor_strike.swf',
+      '-main as/meteor_strike.as'].join(' ')
+end

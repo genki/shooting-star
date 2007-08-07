@@ -33,9 +33,9 @@ module MeteorStrike
       sig = Meteor.shooter.signature
       iframe_id = "meteor-strike-#{@meteor_strike}"
       host_port = (server.split(':') << '80')[0..1].join(':')
-      flash_vars = [
-        "channel=#{channel}", "tag=#{tag}", "uid=#{uid}", "sig=#{sig}",
-        "base_uri=#{uri}", "server=#{host_port}"].join('&')
+      flash_vars = ["channel=#{channel}", "tag=#{tag}", "uid=#{uid}",
+        "sig=#{sig}", "base_uri=#{uri}", "server=#{host_port}",
+        "debug=#{options[:debug].to_json}"].join('&')
       unless options[:noflash]
         @flash_html = render :use_full_path => false,
           :file => File.join(PLUGIN_ROOT, 'views/flash.rhtml'),

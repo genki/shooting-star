@@ -1,13 +1,15 @@
 *** 3.2.0 / 2007-07-18
-+ 1 major enhancement:
++ 2 major enhancements:
   + Automatic activation/deactivation of flash client.
+  + Ported meteor_strike.swf from CS3 to mtasc.
   - Serialized event execution.
-+ 5 minor enhancements:
++ 6 minor enhancements:
   + shooting_star.yml is processed by ERB.
   + Updated implementation of observers.
   + Added sample chat observer script.
   + Separated views of xhr and flash html into views/.
   + Added an event which will fire when connection is established.
+  + Added :debug option to meteor_strike helper.
   - Heart beat.
 + 2 minor spec changes:
   + Changed default pid file location from log/ to tmp/pids/.
