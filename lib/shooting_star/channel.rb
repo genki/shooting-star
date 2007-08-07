@@ -3,7 +3,6 @@ module ShootingStar
     attr_reader :path, :waiters
     @@channels = {}
     @@observers = Hash.new{|h,k| h[k] = Hash.new}
-    @@mutex = Mutex.new
 
     def initialize(channel_path)
       @path = channel_path
@@ -13,9 +12,7 @@ module ShootingStar
 
     def transmit(id, params)
       if event = params[:event]
-        observers = @@mutex.synchronize do
-          @@observers.has_key?(@path) ? @@observers[@path].dup : nil
-        end
+        observers = @@observers.has_key?(@path) ? @@observers[@path].dup : nil
         observers.each do |name, obs|
           begin obs.__send__(event, params) if obs.respond_to?(event)
           rescue Exception; Channel.ignore(@path, name) end
@@ -35,17 +32,15 @@ module ShootingStar
     def self.[](channel_path) @@channels[channel_path] end
     def self.list; @@channels.keys end
     def self.sweep; @@channels.delete_if{|k,v| v.waiters.empty?} end
-    def self.observers; @@mutex.synchronize{@@observers.dup} end
+    def self.observers; @@observers end
 
     def self.observe(channel_path, observer)
-      @@mutex.synchronize{@@observers[channel_path][observer.name] = observer}
+      @@observers[channel_path][observer.name] = observer
     end
 
     def self.ignore(channel_path, name)
-      @@mutex.synchronize do
-        @@observers[channel_path].delete(name)
-        @@observers.delete(channel_path) if @@observers[channel_path].empty?
-      end
+      @@observers[channel_path].delete(name)
+      @@observers.delete(channel_path) if @@observers[channel_path].empty?
     end
 
     def self.cleanup(channel_path)

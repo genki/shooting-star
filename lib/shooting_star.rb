@@ -89,7 +89,7 @@ module ShootingStar
         @log_file.close if @log_file
       end
       log "shooting_star service started."
-      Process.kill(:ALRM, Process.ppid) if CONFIG.daemon
+      Process.kill(:ALRM, Process.ppid) rescue nil if CONFIG.daemon
       block.call if block
     end
   end

@@ -64,7 +64,7 @@ module ShootingStar
         @uid = @@uids[@signature] ||= @params['uid']
         @tag = @@tags[@signature] ||=
           (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
-        unless @@servers[@signature] || @type == 'rc'
+        if !@@servers[@signature] && @type != 'rc'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
           log "Connected: #{@uid}"
         end

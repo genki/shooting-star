@@ -20,4 +20,6 @@ class ChatObserver
 end
 
 Meteor::shooter.observe('simple_chat/chatroom', ChatObserver.new)
-DRb.thread.join
+puts 'ChatObserver installed successfully.'
+puts '[ PRESS ENTER KEY TO EXIT ]'
+gets

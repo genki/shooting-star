@@ -7,9 +7,27 @@
   </form>
   <%= javascript_tag %Q{
     var meteorStrike = meteorStrike || $H();
-    meteorStrike.flashVersion = (#{options[:noflash].to_json}) ||
-      typeof flashVersion == 'undefined' ? 0 : flashVersion;
-    Event.observe(window, 'load', function(){
+    meteorStrike.getFlashVersion = function(){
+      if(#{options[:noflash].to_json}) return 0;
+      var version = 0, ua = navigator.userAgent;
+      if(navigator.plugins && navigator.mimeTypes.length){
+        var x = navigator.plugins["Shockwave Flash"];
+        if(x && x.description) {
+          version = parseInt(x.description.replace(/([a-zA-Z]|\\s)+/, ""
+            ).replace(/(\\s+r|\\s+b[0-9]+)/, ".").split(".")[0]);
+        }
+      }else if(!ua || ua.indexOf("Windows CE") == -1){
+        try{
+          var axo = new ActiveXObject("ShockwaveFlash.ShockwaveFlash");
+          try{
+            axo.AllowScriptAccess = 'always';
+            version = axo.GetVariable('$version').split(' ')[1].split(",")[0];
+          }catch(e){version = 6}
+        }catch(e){}
+      }
+      return version;
+    };
+    (function(){
       var channel = #{channel.to_json};
       var UID = #{uid.to_json}, TAGS = #{tags.to_json};
       var encodeTags = function(tags){
@@ -21,7 +39,10 @@
       ms.getUid = function(){return UID};
       ms.execute = function(js){eval(js)};
       ms.event = function(params){
-        if(params.event == 'init') ms.connection = params.type;
+        if(params.event == 'init'){
+          if(ms.connection) return Element.remove('#{iframe_id}');
+          ms.connection = params.type;
+        }
         (function(){#{options[:event]}})();
       };
       ms.update = function(uid, tags){
@@ -54,19 +75,19 @@
         form.submit();
         setTimeout(ms.connector, 3000);
       }, 0);
-    });
+    })();
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
+      var ms = meteorStrike[#{channel.to_json}];
       switch(command){
-      case 'execute': eval(args); break;
+      case 'execute': ms.execute(args); break;
       case 'event':
-        if(args == 'connect') (function(){#{options[:connected]}})();
+        if(args == 'connect') ms.event({event: 'init', type: 'flash'});
         break;
       }
     }
     if(navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
       navigator.userAgent.indexOf("Windows") != -1 &&
-      navigator.userAgent.indexOf("Windows 3.1") == -1)
-    {
+      navigator.userAgent.indexOf("Windows 3.1") == -1){
       document.write([
         '<script language="VBScript"\\>',
         'On Error Resume Next',
@@ -76,6 +97,8 @@
          '_DoFSCommand(command, args)'].join(''),
         'End Sub', '</script\\>'].join(#{"\n".to_json}));
     }
-    if(meteorStrike.flashVersion >= 6) document.write(#{@flash_html.to_json});
+    if(meteorStrike.getFlashVersion() >= 6){
+      document.write(#{@flash_html.to_json});
+    }
   } %>
 </div>
