@@ -19,7 +19,7 @@
     :url => {:controller => 'chats', :action => 'user_list'},
     :after => %Q[new Effect.Highlight("user-list", {queue: 'end'})])
   meteor_strike "simple_chat/chatroom", :debug => true,
-    :uid => session[:name], :tag => session[:tags], :noflash => false,
+    :uid => session[:name], :tag => session[:tags], :noflash => true,
     :event => %Q{
       switch(params.event){
       case 'init':

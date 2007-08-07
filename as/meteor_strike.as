@@ -73,7 +73,10 @@ class MeteorStrike{
   }
 
   function log(message:String){
-    if(_root.debug) _root.log.text += message + "\n";
+    if(_root.debug){
+      var logs = _root.log.text.split("\r").concat(message);
+      _root.log.text = logs.slice(-10).join("\n");
+    }
   } 
 
   static function main(){
@@ -83,7 +86,7 @@ class MeteorStrike{
       _root.log.multiline = true;
       _root.log.wordWrap = true;
       _root.log.autoSize = 'left';
-      _root.text = "DEBIG MODE:\n";
+      _root.log.text = "DEBIG MODE:";
     }
     (new MeteorStrike(_root)).establishConnection();
   }

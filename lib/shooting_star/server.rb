@@ -196,7 +196,7 @@ module ShootingStar
       query += "&" + FormEncoder.encode(params) if params
       @execution += <<-"EOH"
       (function(){
-        var ms1 = document.getElementById('meteor-strike-1');
+        var ms1 = document.getElementById('meteor-strike-1-form');
         var box = ms1 ? ms1.parentNode : document.body;
         var iframe = document.createElement('iframe');
         var remove = function(){box.removeChild(iframe)};

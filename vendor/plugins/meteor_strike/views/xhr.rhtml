@@ -71,7 +71,7 @@
         var tags = Array.prototype.without.apply(TAGS, tagsOut);
         ms.update(UID, tags.concat(tagsIn || []).uniq());
       };
-      /*setTimeout(ms.connector = function(){ 
+      setTimeout(ms.connector = function(){ 
         if(ms.connection) return;
         var form = $("#{iframe_id}-form");
         form.uid.value = #{uid.to_json};
@@ -80,7 +80,6 @@
         form.submit();
         setTimeout(ms.connector, 3000);
       }, meteorStrike.getFlashVersion() >= 6 ? 3000 : 0);
-      */
     })();
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
       var ms = meteorStrike[#{channel.to_json}];
