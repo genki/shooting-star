@@ -25,6 +25,7 @@ module ShootingStar
 
     # receive the data sent from client.
     def receive_data(data)
+      return if data.length == 0
       return send_policy_file if @data.length == 0 &&
         data == "<policy-file-request/>"
       @data += data
@@ -218,6 +219,7 @@ module ShootingStar
       assets.query = assets.fragment = nil
       query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(:event => :init, :type => :xhr)
+      heartbeat = @params['heartbeat'].to_i
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
       <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
@@ -240,6 +242,9 @@ module ShootingStar
           request.transport.abort();
         };
         Event.observe(window, 'unload', disconnect);
+        if(#{heartbeat} > 0) setTimeout(function(){
+          if(request.transport.readyState == 1) disconnect(), connect(true);
+        }, [#{heartbeat}, 60].max() * 1000);
       };
       setTimeout(function(){connect(false)}, 0);
       //]]>

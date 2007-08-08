@@ -5,7 +5,8 @@ module MeteorStrike
   module Helper
     def self.included(base)
       base.class_eval do
-        alias_method_chain :form_tag, :timestamp
+        alias_method :form_tag_without_timestamp, :form_tag
+        alias_method :form_tag, :form_tag_with_timestamp
       end
     end
 
@@ -35,7 +36,8 @@ module MeteorStrike
       host_port = (server.split(':') << '80')[0..1].join(':')
       flash_vars = ["channel=#{channel}", "tag=#{tag}", "uid=#{uid}",
         "sig=#{sig}", "base_uri=#{uri}", "server=#{host_port}",
-        "debug=#{options[:debug].to_json}"].join('&')
+        "heartbeat=#{options[:heartbeat]}", "debug=#{options[:debug].to_json}"
+      ].join('&')
       unless options[:noflash]
         @flash_html = render :use_full_path => false,
           :file => File.join(PLUGIN_ROOT, 'views/flash.rhtml'),

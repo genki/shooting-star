@@ -1,20 +1,25 @@
-*** 3.2.0 / 2007-07-18
-+ 2 major enhancements:
+*** 3.2.0 / 2007-08-09
++ 3 major enhancements:
   + Automatic activation/deactivation of flash client.
   + Ported meteor_strike.swf from CS3 to mtasc.
+  + Heart beat.
   - Serialized event execution.
-+ 6 minor enhancements:
++ 7 minor enhancements:
   + shooting_star.yml is processed by ERB.
   + Updated implementation of observers.
-  + Added sample chat observer script.
+  + Updated chat generator with connection notification.
+  + Added sample chat observer script (see script/chat_observer).
   + Separated views of xhr and flash html into views/.
   + Added an event which will fire when connection is established.
-  + Added :debug option to meteor_strike helper.
-  - Heart beat.
-+ 2 minor spec changes:
+  + Added debugging mode to meteor_strike.
++ 6 minor spec changes:
   + Changed default pid file location from log/ to tmp/pids/.
-  + options[:connected] obsoleted.
-    Please use options[:event] instead.
+  + options[:connected] obsoleted. Please use options[:event] instead.
+  + Became independent from alias_method_chain in order to support applications
+    which use older versions (<1.2) of ruby on rails.
+  + Added :debug option to meteor_strike helper.
+  + Added :heartbeart option to meteor_strike helper.
+  + Added :noflash option to meteor_strike helper.
 
 *** 3.1.0 / 2007-07-18
 + 1 major enhancement:

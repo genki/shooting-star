@@ -8,4 +8,11 @@
   <%%= render_component :action => 'show', :id => chat.id %>
 <%% end %>
 </ul>
-<%%= meteor_strike '<%= file_name %>' %>
+<%%= meteor_strike '<%= file_name %>', :event => %Q{
+  switch(params.event){
+  case 'init':
+    new Ajax.Updater('chat-list', #{url_for(:action => 'connect').to_json}, {
+      insertion: Insertion.Top, parameters: {client_type: params.type}});
+    break;
+  }
+} %>

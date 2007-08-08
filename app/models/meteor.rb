@@ -1,16 +1,17 @@
 require 'drb/drb'
 
 class Meteor < ActiveRecord::Base
+  DEFAULT_SERVER_URI = 'localhost:8080'
+  DEFAULT_SHOOTER_URI = 'druby://localhost:7123'
+
   class Shooter
     COUNTERS = [:count, :count_with]
     LISTINGS = [:listeners, :listeners_with, :channels, :signatures]
     EITHEROFS = [:signature]
     MAX_RETRY = 10
-    DEFAULT_SERVER_URI = 'localhost:8080'
-    DEFAULT_SHOOTER_URI = 'druby://localhost:7123'
 
     def initialize(config)
-      config['shooting_star'] ||= {'shooter' => DEFAULT_SHOOTER_URI}
+      config['shooting_star'] ||= {'shooter' => Meteor::DEFAULT_SHOOTER_URI}
       uris = config['shooting_star']['shooter']
       @shooters = [uris].flatten.map{|uri| DRbObject.new(nil, uri)}
     end

@@ -2,6 +2,7 @@ class MeteorStrike{
   var host:String;
   var port:Number;
   var interval:Number;
+  var heartbeat:Number;
   var channel:String;
   var uid:String;
   var tag:String;
@@ -11,18 +12,21 @@ class MeteorStrike{
   private var mc:MovieClip;
   private var socket:XMLSocket;
   private var connected:Boolean;
+  private var heartbeatId:Number;
 
   function MeteorStrike(mc:MovieClip){
     var host_port = mc.server.split(':');
     host = host_port[0];
     port = new Number(host_port[1]);
     interval = mc.interval;
+    heartbeat = new Number(mc.heartbeat || 0);
     channel = mc.channel;
     uid = mc.uid;
     tag = mc.tag;
     sig = mc.sig;
     baseUri = mc.base_uri
     connected = false;
+    heartbeatId = null;
   }
 
   function establishConnection(){
@@ -33,6 +37,7 @@ class MeteorStrike{
       if(success){
         self.connected = true;
         self.startCommunication();
+        self.setHeartbeat();
       }else self.socket.close();
     };
     socket.onClose = function(){
@@ -43,6 +48,7 @@ class MeteorStrike{
     };
     socket.onData = function(data:String){
       self.log(["onData: ", data.length, ' byte(s)'].join(''));
+      self.setHeartbeat();
       fscommand("execute", data);
     };
     makeConnection();
@@ -70,6 +76,16 @@ class MeteorStrike{
       "", content
     ].join("\n"));
     fscommand("event", "connect");
+  }
+
+  function setHeartbeat(){
+    if(heartbeat == 0) return;
+    if(heartbeatId) clearInterval(heartbeatId);
+    heartbeatId = setInterval(this, 'sendHeartbeat', heartbeat * 1000);
+  }
+
+  function sendHeartbeat(){
+    socket.send('');
   }
 
   function log(message:String){

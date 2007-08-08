@@ -21,4 +21,12 @@ class <%= class_name %>Controller < ApplicationController
       page[:chat_message].focus
     end
   end
+
+  def connect
+    @chat = <%= class_name %>.new(
+      :name => '(* system *)',
+      :created_at => Time.now,
+      :message => "connection established on #{params[:client_type]}.")
+    render :action => 'show'
+  end
 end

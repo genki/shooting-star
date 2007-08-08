@@ -9,6 +9,7 @@
     action="http://<%= shooting_star_uri %>">
     <input name="execute" value="<%= uri %>/meteor/strike" />
     <input name="tag" /><input name="uid" /><input name="sig" />
+    <input name="heartbeat" value="<%= options[:heartbeat] %>" />
   </form>
   <%= javascript_tag %Q{
     var meteorStrike = meteorStrike || $H();
