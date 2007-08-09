@@ -41,46 +41,49 @@
         return $A(tags).uniq().map(encode).join(',');
       };
       var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
-      ms.getTags = function(){return TAGS};
-      ms.getUid = function(){return UID};
-      ms.execute = function(js){eval(js)};
-      ms.event = function(params){
-        if(params.event == 'init'){
-          if(ms.connection) return Element.remove('#{iframe_id}');
-          ms.connection = params.type;
-        }
-        (function(){#{options[:event]}})();
-      };
-      ms.update = function(uid, tags){
-        new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
-          channel: channel, uid: uid || UID,
-          tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
-        }).toQueryString(), asynchronous: true});
-        UID = uid, TAGS = tags;
-      };
-      ms.tuneIn = function(tags){
-        ms.update(UID, TAGS.concat(tags || []).uniq());
-      };
-      ms.tuneOut = function(tags){
-        ms.update(UID, Array.prototype.without.apply(TAGS, tags));
-      };
-      ms.tuneInOut = function(tagsIn, tagsOut){
-        var tags = TAGS.concat(tagsIn || []).uniq();
-        ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
-      };
-      ms.tuneOutIn = function(tagsOut, tagsIn){
-        var tags = Array.prototype.without.apply(TAGS, tagsOut);
-        ms.update(UID, tags.concat(tagsIn || []).uniq());
-      };
-      setTimeout(ms.connector = function(){ 
-        if(ms.connection) return;
-        var form = $("#{iframe_id}-form");
-        form.uid.value = #{uid.to_json};
-        form.tag.value = #{tag.to_json};
-        form.sig.value = #{sig.to_json};
-        form.submit();
-        setTimeout(ms.connector, 3000);
-      }, meteorStrike.getFlashVersion() >= 6 ? 3000 : 0);
+      Event.observe(window, 'load', function(){
+        ms.getTags = function(){return TAGS};
+        ms.getUid = function(){return UID};
+        ms.execute = function(js){eval(js)};
+        ms.event = function(params){
+          if(params.event == 'init'){
+            if(ms.connection) return Element.remove('#{iframe_id}');
+            ms.connection = params.type;
+          }
+          (function(){#{options[:event]}})();
+        };
+        ms.update = function(uid, tags){
+          new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
+            channel: channel, uid: uid || UID,
+            tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
+          }).toQueryString(), asynchronous: true});
+          UID = uid, TAGS = tags;
+        };
+        ms.tuneIn = function(tags){
+          ms.update(UID, TAGS.concat(tags || []).uniq());
+        };
+        ms.tuneOut = function(tags){
+          ms.update(UID, Array.prototype.without.apply(TAGS, tags));
+        };
+        ms.tuneInOut = function(tagsIn, tagsOut){
+          var tags = TAGS.concat(tagsIn || []).uniq();
+          ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
+        };
+        ms.tuneOutIn = function(tagsOut, tagsIn){
+          var tags = Array.prototype.without.apply(TAGS, tagsOut);
+          ms.update(UID, tags.concat(tagsIn || []).uniq());
+        };
+        setTimeout(ms.connector = function(){ 
+          if(ms.connection) return;
+          var form = $("#{iframe_id}-form");
+          form.uid.value = #{uid.to_json};
+          form.tag.value = #{tag.to_json};
+          form.sig.value = #{sig.to_json};
+          var timerId = setTimeout(ms.connector, 3000);
+          $('#{iframe_id}').onload = function(){clearTimeout(timerId)};
+          form.submit();
+        }, meteorStrike.getFlashVersion() >= 6 ? 3000 : 0);
+      });
     })();
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
       var ms = meteorStrike[#{channel.to_json}];
