@@ -41,38 +41,38 @@
         return $A(tags).uniq().map(encode).join(',');
       };
       var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
-      Event.observe(window, 'load', function(){
-        ms.getTags = function(){return TAGS};
-        ms.getUid = function(){return UID};
-        ms.execute = function(js){eval(js)};
-        ms.event = function(params){
-          if(params.event == 'init'){
-            if(ms.connection) return Element.remove('#{iframe_id}');
-            ms.connection = params.type;
-          }
-          (function(){#{options[:event]}})();
-        };
-        ms.update = function(uid, tags){
-          new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
-            channel: channel, uid: uid || UID,
-            tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
-          }).toQueryString(), asynchronous: true});
-          UID = uid, TAGS = tags;
-        };
-        ms.tuneIn = function(tags){
-          ms.update(UID, TAGS.concat(tags || []).uniq());
-        };
-        ms.tuneOut = function(tags){
-          ms.update(UID, Array.prototype.without.apply(TAGS, tags));
-        };
-        ms.tuneInOut = function(tagsIn, tagsOut){
-          var tags = TAGS.concat(tagsIn || []).uniq();
-          ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
-        };
-        ms.tuneOutIn = function(tagsOut, tagsIn){
-          var tags = Array.prototype.without.apply(TAGS, tagsOut);
-          ms.update(UID, tags.concat(tagsIn || []).uniq());
-        };
+      ms.getTags = function(){return TAGS};
+      ms.getUid = function(){return UID};
+      ms.execute = function(js){eval(js)};
+      ms.event = function(params){
+        if(params.event == 'init'){
+          if(ms.connection) return Element.remove('#{iframe_id}');
+          ms.connection = params.type;
+        }
+        (function(){#{options[:event]}})();
+      };
+      ms.update = function(uid, tags){
+        new Ajax.Request(#{update_uri.to_json}, {postBody: $H({
+          channel: channel, uid: uid || UID,
+          tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
+        }).toQueryString(), asynchronous: true});
+        UID = uid, TAGS = tags;
+      };
+      ms.tuneIn = function(tags){
+        ms.update(UID, TAGS.concat(tags || []).uniq());
+      };
+      ms.tuneOut = function(tags){
+        ms.update(UID, Array.prototype.without.apply(TAGS, tags));
+      };
+      ms.tuneInOut = function(tagsIn, tagsOut){
+        var tags = TAGS.concat(tagsIn || []).uniq();
+        ms.update(UID, Array.prototype.without.apply(tags, tagsOut));
+      };
+      ms.tuneOutIn = function(tagsOut, tagsIn){
+        var tags = Array.prototype.without.apply(TAGS, tagsOut);
+        ms.update(UID, tags.concat(tagsIn || []).uniq());
+      };
+      Event.observe(document.body, 'load', function(){
         setTimeout(ms.connector = function(){ 
           if(ms.connection) return;
           var form = $("#{iframe_id}-form");
