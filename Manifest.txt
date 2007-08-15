@@ -4,6 +4,7 @@ README.txt
 Rakefile
 bin/shooting_star
 lib/shooting_star.rb
+lib/shooting_star/version.rb
 lib/shooting_star/server.rb
 lib/shooting_star/shooter.rb
 lib/shooting_star/channel.rb

@@ -10,9 +10,10 @@ namespace :gem do
 
   $: << './lib'
   $: << './ext'
-  require 'shooting_star'
+  require 'shooting_star/version'
 
   Hoe.new('shooting_star', ShootingStar::VERSION) do |hoe|
+
     hoe.author = 'Genki Takiuchi'
     hoe.email = 'takiuchi@drecom.co.jp'
     hoe.description = 'Comet server.'
@@ -68,4 +69,21 @@ file 'public/meteor_strike.swf' => 'as/meteor_strike.as' do
   sh ['mtasc -version 6 -header 300:300:30',
       '-swf public/meteor_strike.swf',
       '-main as/meteor_strike.as'].join(' ')
+end
+
+desc 'making ext'
+task :ext => 'ext/asteroid.so'
+
+file 'ext/asteroid.so' => 'ext/Makefile' do
+  cwd = `pwd`
+  cd 'ext/'
+  sh 'make'
+  cd cwd.chomp
+end
+
+file 'ext/Makefile' => 'ext/extconf.rb' do
+  cwd = `pwd`
+  cd 'ext/'
+  sh 'ruby extconf.rb'
+  cd cwd.chomp
 end

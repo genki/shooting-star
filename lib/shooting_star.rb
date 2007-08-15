@@ -5,11 +5,11 @@ require 'yaml'
 require 'ftools'
 require 'fileutils'
 require 'erb'
+require 'shooting_star/version'
 require 'shooting_star/config'
 require 'shooting_star/shooter'
 
 module ShootingStar
-  VERSION = '3.2.1'
   CONFIG = Config.new(
     :config => 'config/shooting_star.yml',
     :pid_file => 'tmp/pids/shooting_star.pid',

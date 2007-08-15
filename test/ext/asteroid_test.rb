@@ -20,14 +20,9 @@ end
 
 class ShootingStarTest < Test::Unit::TestCase
   def setup
-    mutex = Mutex.new
-    mutex.lock
-    @thread = Thread.new do
-      Asteroid::run('127.0.0.1', 7124, Server) do
-        mutex.unlock
-      end
-    end
-    mutex.lock
+    flag = false
+    @thread = Thread.new{Asteroid::run('127.0.0.1', 7124, Server){flag = true}}
+    Thread.pass until flag
   end
 
   def teardown

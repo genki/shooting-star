@@ -19,10 +19,9 @@ class ShootingStarTest < Test::Unit::TestCase
       :log_file => 'log/shooting_star.test.log',
       :server => {:host => '127.0.0.1', :port => 8081},
       :shooter => {:uri => 'druby://127.0.0.1:7124'}
-    mutex = Mutex.new
-    mutex.lock
-    @thread = Thread.new{ShootingStar.start{mutex.unlock}}
-    mutex.lock
+    flag = false
+    @thread = Thread.new{ShootingStar.start{flag = true}}
+    Thread.pass until flag
     @query = "sig=0123456789&execute=http://127.0.0.1:4001/meteor/strike"
     @query2 = "sig=1123456789&execute=http://127.0.0.1:4001/meteor/strike"
   end
@@ -49,14 +48,13 @@ class ShootingStarTest < Test::Unit::TestCase
     assert_not_nil result.index('test\/channel')
     client.close
 
-    mutex = Mutex.new
-    mutex.lock
+    flag = false
     Thread.new do
       client = TCPSocket.open('127.0.0.1', 8081)
       send(client, "POST", "test/channel", "#{@query}&__t__=c")
-      mutex.unlock
+      flag = true
     end
-    mutex.lock
+    Thread.pass until flag
     shooter = DRbObject.new_with_uri('druby://127.0.0.1:7124')
     assert_not_nil shooter
     shooter.shoot("test/channel", 12, [])
@@ -74,20 +72,20 @@ class ShootingStarTest < Test::Unit::TestCase
     observer = TestObserver.new
     assert_not_nil observer
     shooter.observe('test/channel', observer)
-    mutex = Mutex.new
-    mutex.lock
+    flag = false
     assert_nil observer.params
     Thread.new do
       send(client1, "POST", "test/channel", "#{@query}&__t__=c")
-      mutex.unlock
+      flag = true
     end
-    mutex.lock
+    Thread.pass until flag
     assert_nil observer.params
+    flag = false
     Thread.new do
       send(client2, "POST", "test/channel", "#{@query2}&__t__=c")
-      mutex.unlock
+      flag = true
     end
-    mutex.lock
+    Thread.pass until flag
     assert_not_nil observer.params
     assert_equal :enter, observer.params[:event]
     assert_not_nil result1 = client1.read

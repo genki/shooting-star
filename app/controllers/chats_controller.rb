@@ -1,6 +1,6 @@
 class ChatsController < ApplicationController
   layout 'chats', :only => [:index]
-  #caches_page :show
+  caches_page :show
 
   def index
     @chats = Chat.find(:all, :limit => 50, :order => 'created_at DESC')

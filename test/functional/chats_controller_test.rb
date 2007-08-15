@@ -12,15 +12,14 @@ class ChatsControllerTest < Test::Unit::TestCase
     @controller = ChatsController.new
     @request    = ActionController::TestRequest.new
     @response   = ActionController::TestResponse.new
-    @config     = ShootingStar.configure :silent => true,
-      :pid_file => 'log/shooting_star.test.pid',
+    @config = ShootingStar.configure :silent => true,
+      :pid_file => 'tmp/pids/shooting_star.test.pid',
       :log_file => 'log/shooting_star.test.log',
-      :server => {:host => '0.0.0.0', :port => 8081},
-      :shooter => {:uri => 'druby://0.0.0.0:7124'}
-    mutex = Mutex.new
-    mutex.lock
-    @thread = Thread.new{ShootingStar.start{mutex.unlock}}
-    mutex.lock
+      :server => {:host => '127.0.0.1', :port => 8081},
+      :shooter => {:uri => 'druby://127.0.0.1:7124'}
+    flag = false
+    @thread = Thread.new{ShootingStar.start{flag = true}}
+    Thread.pass until flag
   end
 
   def teardown
