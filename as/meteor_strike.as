@@ -57,8 +57,9 @@ class MeteorStrike{
   function makeConnection(){
     if(connected) return;
     log(["makeConnection: ", host, ':', port].join(''));
-    socket.connect(host, port);
-    _global.setTimeout(this, 'makeConnection', interval || 3000);
+    if(!socket.connect(host, port)){
+      _global.setTimeout(this, 'makeConnection', interval || 3000);
+    }
   };
 
   function startCommunication(){

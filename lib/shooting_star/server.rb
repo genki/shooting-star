@@ -59,9 +59,9 @@ module ShootingStar
       @type = @params['__t__']
       # process verb
       if !@type
-        make_connection(path)
+        make_xhr_connection(path)
       else
-        send_data(executioner) if @type == 'f'
+        make_flash_connection if @type == 'f'
         prepare_channel(@channel_path)
         @uid = @@uids[@signature] ||= @params['uid']
         @tag = @@tags[@signature] ||=
@@ -126,12 +126,6 @@ module ShootingStar
       end
       true
     end
-
-    # noticed execution and remove the command from execution buffer.
-    #def executed(id) 
-    #  @executing = @@executings[@signature] ||= Hash.new
-    #  @executing.delete(id)
-    #end
     
     # update current status of servant.
     def update(uid, tag)
@@ -205,11 +199,18 @@ module ShootingStar
           var ms1 = document.getElementById('meteor-strike-1-form');
           var box = ms1 ? ms1.parentNode : document.body;
           var iframe = document.createElement('iframe');
-          var remove = function(){box.removeChild(iframe)};
+          var remove = function(){
+            if(iframe) box.removeChild(iframe);
+            iframe = null;
+          };
           var timer = setTimeout(remove, #{sweep_timeout});
-          iframe.onload = function(){
+          var ready = function(){
             clearTimeout(timer);
             setTimeout(remove, 0);
+          };
+          iframe.onload = ready;
+          iframe.onreadystatechange = function(){
+            if(this.readyState == 'complete') ready();
           };
           iframe.src = ['#{@params['execute']}/', id, '?', query].join('');
           box.appendChild(iframe);
@@ -217,8 +218,17 @@ module ShootingStar
       EOH
     end
 
-    # make client connect us.
-    def make_connection(path)
+    # make flash client connect us.
+    def make_flash_connection
+      query = @query.sub(%r[\&sig=\d+], '')
+      query += "&" + FormEncoder.encode(:event => :init, :type => :flash)
+      send_data executioner + %Q{
+        meteorStrike_execute('0', #{query.to_json});
+      } + "\0"
+    end
+
+    # make xhr client connect us.
+    def make_xhr_connection(path)
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil

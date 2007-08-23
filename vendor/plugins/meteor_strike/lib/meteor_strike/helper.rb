@@ -31,7 +31,8 @@ module MeteorStrike
       tags = options[:tag] || []
       tag = tags.map{|i| CGI.escape(i.to_s)}.join(',')
       update_uri = "#{uri}/meteor/update"
-      sig = Meteor.shooter.signature
+      now = Time.now
+      sig = "%d%06d" % [now.tv_sec, now.tv_usec]
       iframe_id = "meteor-strike-#{@meteor_strike}"
       host_port = (server.split(':') << '80')[0..1].join(':')
       flash_vars = ["channel=#{channel}", "tag=#{tag}", "uid=#{uid}",

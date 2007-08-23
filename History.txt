@@ -1,8 +1,9 @@
 *** 3.2.2 / 2007-08-23
 + 1 major enhancement:
   + Profiling by RubyProf if CONFIG.profile.
-+ 1 minor enhancement:
++ 2 minor enhancements:
   + Added new task meteor_strike:update for updating plugin.
+  + Refined a code of reconnection in flash client.
 + 2 minor spec changes:
   + Added lib/version.rb.
   + Added :without_logging to shooting_star.yml
