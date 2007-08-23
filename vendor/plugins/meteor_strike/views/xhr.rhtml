@@ -72,7 +72,7 @@
         var tags = Array.prototype.without.apply(TAGS, tagsOut);
         ms.update(UID, tags.concat(tagsIn || []).uniq());
       };
-      Event.observe(document.body, 'load', function(){
+      Event.observe(window, 'load', function(){
         setTimeout(ms.connector = function(){ 
           if(ms.connection) return;
           var form = $("#{iframe_id}-form");

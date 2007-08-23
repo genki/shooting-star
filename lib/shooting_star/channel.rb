@@ -10,16 +10,23 @@ module ShootingStar
       @@channels[path] = self
     end
 
+    # A message is sent to observers if params includes a :event key.
+    # If there are no observers, the message is sent to clients.
+    # Others are sent to clients.
     def transmit(id, params)
+      need_event_handling = false
       if event = params[:event]
         observers = @@observers.has_key?(@path) ? @@observers[@path].dup : nil
         observers.each do |name, obs|
           begin obs.__send__(event, params) if obs.respond_to?(event)
           rescue Exception; Channel.ignore(@path, name) end
         end if observers
+        need_event_handling = observers.nil? || observers.empty?
       end
-      @waiters.each do |signature, server|
-        server.commit if server.respond(id, params)
+      if event.nil? || need_event_handling
+        @waiters.each do |signature, server|
+          server.commit if server.respond(id, params)
+        end
       end
     end
 

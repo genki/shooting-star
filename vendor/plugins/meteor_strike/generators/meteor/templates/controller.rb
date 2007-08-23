@@ -1,7 +1,6 @@
 class MeteorController < ApplicationController
   layout nil
   caches_action :strike
-  after_filter :notify_execution, :only => [:strike]
 
   def strike
     @channel = params[:channel]
@@ -23,10 +22,5 @@ class MeteorController < ApplicationController
   def sweep
     Meteor.shooter.sweep
     render :nothing => true
-  end
-
-private
-  def notify_execution
-    Meteor.shooter.executed(params[:sig], params[:id])
   end
 end

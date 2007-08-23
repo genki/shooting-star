@@ -6,7 +6,8 @@ module ShootingStar
     # broadcast/multicast message
     def shoot(channel_path, id, tag, options = {})
       return unless Channel[channel_path]
-      log "Shot: #{channel_path}:#{id}:#{tag.join(',')}:#{options}"
+      tag ||= []
+      log{"Shot: #{channel_path}:#{id}:#{tag.join(',')}:#{options}"}
       Channel[channel_path].transmit(id, options.merge(:tag => tag))
     end
 
@@ -49,12 +50,6 @@ module ShootingStar
       servers(channel_path, tag).map{|s| s.signature}
     end
 
-    # notification entry point of message execution.
-    def executed(sig, id)
-      ::ShootingStar::Server[sig].executed(id)
-    rescue Exception
-    end
-
     # observe server side events
     def observe(channel_path, observer)
       Channel.observe(channel_path, observer)
@@ -62,7 +57,7 @@ module ShootingStar
     end
 
   private
-    def log(*arg, &block) ShootingStar::log(*arg, &block) end
+    def log(&block) ShootingStar::log(&block) end
 
     def servers(channel_path, tag = nil)
       return [] unless Channel[channel_path]

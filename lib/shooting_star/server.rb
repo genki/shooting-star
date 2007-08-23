@@ -61,13 +61,14 @@ module ShootingStar
       if !@type
         make_connection(path)
       else
+        send_data(executioner) if @type == 'f'
         prepare_channel(@channel_path)
         @uid = @@uids[@signature] ||= @params['uid']
         @tag = @@tags[@signature] ||=
           (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
         if !@@servers[@signature] && @type != 'rc'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
-          log "Connected: #{@uid}"
+          log{"Connected: #{@uid}"}
         end
         @executing = @@executings[@signature] ||= Hash.new
         @@servers[@signature] = self
@@ -76,7 +77,7 @@ module ShootingStar
     rescue MethodNotAcceptable
       write_and_close
     rescue Exception => e
-      log "ERROR: #{e.message}\n#{e.backtrace.join("\n")}\n#{data}"
+      log{"ERROR: #{e.message}\n#{e.backtrace.join("\n")}\n#{data}"}
       write_and_close
     end
 
@@ -91,9 +92,9 @@ module ShootingStar
       @@uids.delete(@signature)
       @@tags.delete(@signature)
       @@executings.delete(@signature)
-      log "Disconnected: #{@uid}:#{@signature}"
+      log{"Disconnected: #{@uid}:#{@signature}"}
       if Channel.cleanup(@channel_path)
-        log "Channel closed: #{@channel_path}"
+        log{"Channel closed: #{@channel_path}"}
       end
     end
 
@@ -115,9 +116,9 @@ module ShootingStar
       return false if @execution.empty?
       return false unless send_data(@type == 'f' ? "#{@execution}\0" :
         "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n#{@execution}")
-      @committed_at = Time.now
+      @committed_at = Asteroid::now
       @execution = ''
-      @executing = Hash.new
+      @executing.clear
       @@executings.delete(@signature)
       unless @type == 'f'
         @waiting = nil
@@ -127,10 +128,10 @@ module ShootingStar
     end
 
     # noticed execution and remove the command from execution buffer.
-    def executed(id) 
-      @executing = @@executings[@signature] ||= Hash.new
-      @executing.delete(id)
-    end
+    #def executed(id) 
+    #  @executing = @@executings[@signature] ||= Hash.new
+    #  @executing.delete(id)
+    #end
     
     # update current status of servant.
     def update(uid, tag)
@@ -140,7 +141,7 @@ module ShootingStar
         @@tags[@signature] = @tag = tag
         notify(:event => :enter, :uid => @uid, :tag => @tag)
       end
-      log "Update: #{@uid}:#{@tag.join(',')}"
+      log{"Update: #{@uid}:#{@tag.join(',')}"}
     end
 
     def uid; @@uids[@signature] end
@@ -152,31 +153,31 @@ module ShootingStar
     end
 
   private
-    def log(*arg, &block) ShootingStar::log(*arg, &block) end
+    def log(&block) ShootingStar::log(&block) end
 
     # check session timeout
     def session_timeout?
       return true unless @committed_at
-      Time.now - @committed_at > ShootingStar::CONFIG.session_timeout
+      Asteroid::now - @committed_at > ShootingStar::CONFIG.session_timeout
     end
 
     # broadcast event to clients.
     def notify(params = {})
       return unless Channel[@channel_path]
       event_id = ShootingStar::timestamp
-      log "Event(#{event_id}): #{@channel_path}:#{params.inspect}"
+      log{"Event(#{event_id}): #{@channel_path}:#{params.inspect}"}
       Channel[@channel_path].transmit("event-#{event_id}", params)
     rescue Exception => e
-      log "ERROR: #{e.message}\n#{e.backtrace.join("\n")}"
+      log{"ERROR: #{e.message}\n#{e.backtrace.join("\n")}"}
     end
 
     # wait for commands or events until they occur. if they're already in
     # the execution buffer, they'll be flushed and return on the spot.
     def wait_for
       @waiting = true
-      log "Wait for: #{@channel_path}:#{@uid}:#{@tag.join(',')}:#{@signature}"
+      log{"Wait for: #{@channel_path}:#{@uid}:#{@tag.inspect}:#{@signature}"}
       if prepare_channel(@channel_path).join(self)
-        log "Flushed: #{@channel_path}:#{@uid}:#{@tag.join(',')}:#{@signature}"
+        log{"Flushed: #{@channel_path}:#{@uid}:#{@tag.inspect}:#{@signature}"}
       end
     end
 
@@ -184,31 +185,35 @@ module ShootingStar
     def prepare_channel(channel_path)
       unless Channel[channel_path]
         Channel.new(channel_path)
-        log "Channel opened: #{channel_path}"
+        log{"Channel opened: #{channel_path}"}
       end
       Channel[channel_path]
     end
 
     # add execution line to the buffer.
     def execute(id, params)
-      sweep_timeout = ShootingStar::CONFIG.sweep_timeout
       @executing[id] = params
       query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(params) if params
-      @execution += <<-"EOH"
-      (function(){
-        var ms1 = document.getElementById('meteor-strike-1-form');
-        var box = ms1 ? ms1.parentNode : document.body;
-        var iframe = document.createElement('iframe');
-        var remove = function(){box.removeChild(iframe)};
-        var timer = setTimeout(remove, #{sweep_timeout});
-        iframe.onload = function(){
-          clearTimeout(timer);
-          setTimeout(remove, 0);
+      @execution += "meteorStrike_execute(#{id.to_json},#{query.to_json});"
+    end
+
+    def executioner
+      sweep_timeout = ShootingStar::CONFIG.sweep_timeout
+      <<-"EOH"
+        window.meteorStrike_execute = function(id, query){
+          var ms1 = document.getElementById('meteor-strike-1-form');
+          var box = ms1 ? ms1.parentNode : document.body;
+          var iframe = document.createElement('iframe');
+          var remove = function(){box.removeChild(iframe)};
+          var timer = setTimeout(remove, #{sweep_timeout});
+          iframe.onload = function(){
+            clearTimeout(timer);
+            setTimeout(remove, 0);
+          };
+          iframe.src = ['#{@params['execute']}/', id, '?', query].join('');
+          box.appendChild(iframe);
         };
-        iframe.src = '#{@params['execute']}/#{id}?#{query}';
-        box.appendChild(iframe);
-      })();
       EOH
     end
 
@@ -229,6 +234,7 @@ module ShootingStar
       <script type="text/javascript" src="#{assets}"></script>
       <script type="text/javascript">
       //<![CDATA[
+      #{executioner}
       var connect = function(reconnect)
       { var body = $H(#{@params.to_json});
         body.__t__ = reconnect ? 'rc' : 'c';

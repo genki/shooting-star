@@ -59,7 +59,7 @@ class ShootingStarTest < Test::Unit::TestCase
     assert_not_nil shooter
     shooter.shoot("test/channel", 12, [])
     assert_not_nil result = client.read
-    assert_not_nil result.index('meteor/strike/12')
+    assert_not_nil result.index('meteorStrike_execute(12,')
   end
 
   def test_multi_user_communication
@@ -88,11 +88,11 @@ class ShootingStarTest < Test::Unit::TestCase
     Thread.pass until flag
     assert_not_nil observer.params
     assert_equal :enter, observer.params[:event]
-    assert_not_nil result1 = client1.read
-    assert_not_nil result1.index('meteor/strike/event-')
     shooter.shoot("test/channel", 12, [])
+    assert_not_nil result1 = client1.read
+    assert_not_nil result1.index('meteorStrike_execute(12,')
     assert_not_nil result2 = client2.read
-    assert_not_nil result2.index('meteor/strike/12')
+    assert_not_nil result2.index('meteorStrike_execute(12,')
   end
 
   def test_xmlsocket_server

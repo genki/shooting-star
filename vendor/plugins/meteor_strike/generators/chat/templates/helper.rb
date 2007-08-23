@@ -1,2 +1,2 @@
-module MeteorHelper
+module <%= class_name %>Helper
 end

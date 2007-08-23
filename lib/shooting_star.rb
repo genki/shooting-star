@@ -16,7 +16,7 @@ module ShootingStar
     :log_file => 'log/shooting_star.log',
     :daemon => false,
     :slient => false,
-    :session_timeout => 10,
+    :session_timeout => 10.0,
     :sweep_timeout => 500_000)
 
   def self.configure(options = {})
@@ -34,6 +34,8 @@ module ShootingStar
   def self.shooter
     @@shooter ||= DRb.start_service && DRbObject.new(nil, CONFIG.shooter.uri)
   end
+
+  def self.timestamp; ("%.6f" % Asteroid::now).tr('.', '') end
 
   # install config file and plugin
   def self.init
@@ -63,12 +65,16 @@ module ShootingStar
 
   def self.start(&block)
     if File.exist?(CONFIG.pid_file)
-      log 'shooting_star is already running.'
+      log{'shooting_star is already running.'}
       return
     end
     if CONFIG.daemon
       Signal.trap(:ALRM){exit} and sleep if fork
       Process.setsid
+    end
+    if CONFIG.profile
+      require 'ruby-prof'
+      RubyProf.start
     end
     require 'shooting_star/shooter'
     @@druby = DRb.start_service(CONFIG.shooter.uri, Shooter.new)
@@ -81,14 +87,17 @@ module ShootingStar
       Signal.trap(:INT) do
         Asteroid::stop
         @@druby.stop_service
-        log "shooting_star service stopped."
+        log{"shooting_star service stopped."}
         File.rm_f(CONFIG.pid_file)
+        if CONFIG.profile
+          RubyProf::FlatPrinter.new(RubyProf.stop).print(STDOUT, 0)
+        end
       end
       Signal.trap(:EXIT) do
         File.rm_f(CONFIG.pid_file)
         @log_file.close if @log_file
       end
-      log "shooting_star service started."
+      log{"shooting_star service started."}
       Process.kill(:ALRM, Process.ppid) rescue nil if CONFIG.daemon
       block.call if block
     end
@@ -102,7 +111,7 @@ module ShootingStar
     end
     Thread.pass while File.exist?(CONFIG.pid_file)
   rescue Errno::ENOENT
-    log "shooting_star service is not running."
+    log{"shooting_star service is not running."}
   rescue Errno::ESRCH
     File.unlink(CONFIG.pid_file)
   ensure
@@ -135,16 +144,13 @@ module ShootingStar
     puts "#{'-' * 79}\n%11d %s\n#{'-' * 79}" % [total_observers, 'TOTAL']
   end
 
-  def self.timestamp
-    now = Time.now
-    "%d%06d" % [now.tv_sec, now.tv_usec]
-  end
-
 private
-  def self.log(*arg, &block)
-    puts(*arg, &block) unless CONFIG.silent
+  def self.log(&block)
+    return if CONFIG.without_logging
+    message = block.call if block
+    puts(message) unless CONFIG.silent
     @log_file ||= open(CONFIG.log_file, 'a')
-    @log_file.puts(*arg, &block) if @log_file
+    @log_file.puts(message) if @log_file
   end
 end
 __END__

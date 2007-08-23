@@ -9,6 +9,7 @@
 #include <errno.h>
 #include <sys/types.h>
 #include <sys/socket.h>
+#include <sys/time.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "extconf.h"
@@ -21,7 +22,6 @@
  * -------------------------------------------------------------------------- */
 #ifdef HAVE_SYS_EVENT_H
 #include <sys/event.h>
-#include <sys/time.h>
 typedef int asteroid_pollfd_t;
 typedef struct kevent asteroid_poll_event_t;
 #endif
@@ -137,6 +137,7 @@ void Init_asteroid(){
   Asteroid = rb_define_module("Asteroid");
   rb_define_singleton_method(Asteroid, "run", asteroid_s_run, 3);
   rb_define_singleton_method(Asteroid, "stop", asteroid_s_stop, 0);
+  rb_define_singleton_method(Asteroid, "now", asteroid_s_now, 0);
   rb_define_class_variable(Asteroid, "@@clients", clients = rb_hash_new());
 }
 
@@ -204,12 +205,18 @@ static VALUE asteroid_s_stop(VALUE Self){
   return Qnil;
 }
 
+static VALUE asteroid_s_now(VALUE Self){
+  struct timeval now;
+  gettimeofday(&now, NULL);
+  return rb_float_new(now.tv_sec + now.tv_usec/1000000.0);
+}
+
 static VALUE asteroid_server_send_data(VALUE Self, VALUE Data){
   VALUE Fd = rb_iv_get(Self, "@fd");
   int fd = FIX2INT(Fd), remain = RSTRING(Data)->len, len, trial = 100;
   char *data = StringValuePtr(Data);
   while(remain){
-    len = send(fd, data, remain, MSG_NOSIGNAL);
+    len = send(fd, data, remain, MSG_DONTWAIT|MSG_NOSIGNAL);
     if(len == -1){
       if(errno == EAGAIN && --trial){
         rb_thread_schedule();
