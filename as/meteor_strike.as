@@ -70,13 +70,13 @@ class MeteorStrike{
       "&sig=", escape(sig),
       "&execute=", baseUri, "/meteor/strike"
     ].join("");
+    fscommand("event", "connect");
     socket.send([
       ["POST /", escape(channel), " HTTP/1.1"].join(''),
       "Host: localhost:8080",
       ["Content-length: ", content.length].join(''),
       "", content
     ].join("\n"));
-    fscommand("event", "connect");
   }
 
   function setHeartbeat(){

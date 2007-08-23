@@ -222,8 +222,9 @@ module ShootingStar
     def make_flash_connection
       query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(:event => :init, :type => :flash)
+      event_id = MD5.new("event-init-flash-#{@channel_path}").to_s
       send_data executioner + %Q{
-        meteorStrike_execute('0', #{query.to_json});
+        meteorStrike_execute(#{event_id.to_json}, #{query.to_json});
       } + "\0"
     end
 
@@ -234,6 +235,7 @@ module ShootingStar
       assets.query = assets.fragment = nil
       query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(:event => :init, :type => :xhr)
+      event_id = MD5.new("event-init-xhr-#{@channel_path}").to_s
       heartbeat = @params['heartbeat'].to_i
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
@@ -265,7 +267,7 @@ module ShootingStar
       setTimeout(function(){connect(false)}, 0);
       //]]>
       </script></head><body>
-        <iframe src="#{@params['execute']}/0?#{query}"></iframe>
+        <iframe src="#{@params['execute']}/#{event_id}?#{query}"></iframe>
       </body></html>
       EOH
     rescue Exception

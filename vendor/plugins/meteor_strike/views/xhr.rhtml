@@ -47,6 +47,7 @@
       ms.event = function(params){
         if(params.event == 'init'){
           if(ms.connection) return;
+          if(ms.connecting != params.type) return;
           ms.connection = params.type;
         }
         (function(){#{options[:event]}})();
@@ -73,7 +74,7 @@
         ms.update(UID, tags.concat(tagsIn || []).uniq());
       };
       setTimeout(ms.connector = function(){
-        if(ms.connection) return;
+        if(ms.connection || ms.connecting != 'xhr') return;
         var form = $("#{iframe_id}-form");
         form.uid.value = #{uid.to_json};
         form.tag.value = #{tag.to_json};
@@ -89,10 +90,11 @@
       case 'execute': ms.execute(args); break;
       case 'event':
         switch(args){
-        case 'connect':
+        case 'connect': // intercept xhr connection
+          ms.connecting = 'flash';
           if(ms.connection == 'xhr'){
-            Element.remove('#{iframe_id}');
             ms.connection = null;
+            Element.remove('#{iframe_id}');
           }
           break;
         }
