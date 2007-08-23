@@ -30,6 +30,8 @@ vendor/plugins/meteor_strike/lib/meteor_strike/helper.rb
 vendor/plugins/meteor_strike/views
 vendor/plugins/meteor_strike/views/xhr.rhtml
 vendor/plugins/meteor_strike/views/flash.rhtml
+vendor/plugins/meteor_strike/tasks
+vendor/plugins/meteor_strike/tasks/meteor_strike.rake
 vendor/plugins/meteor_strike/test
 vendor/plugins/meteor_strike/test/meteor_strike_test.rb
 vendor/plugins/meteor_strike/generators

@@ -65,8 +65,13 @@ module ShootingStar
 
   def self.start(&block)
     if File.exist?(CONFIG.pid_file)
-      log{'shooting_star is already running.'}
-      return
+      begin
+        shooter.signature
+        log{'shooting_star is already running.'}
+        return
+      rescue Exception
+        log{'shooting_star seems having been shut down incorrectly.'}
+      end
     end
     if CONFIG.daemon
       Signal.trap(:ALRM){exit} and sleep if fork
