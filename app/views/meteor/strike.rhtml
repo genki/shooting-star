@@ -9,8 +9,8 @@
     var javascript = #{@javascript.to_json};
     var execute = function(){
       var ms = parent.parent.meteorStrike[channel];
-      if(ms) ms.execute(javascript);
-      else setTimeout(execute, 0);
+      if(ms) ms.evaluate(javascript, #{params[:__s__]});
+      else setTimeout(evaluate, 0);
     };
     execute();
   })();

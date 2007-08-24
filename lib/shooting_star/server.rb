@@ -189,13 +189,17 @@ module ShootingStar
       @executing[id] = params
       query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(params) if params
-      @execution += "meteorStrike_execute(#{id.to_json},#{query.to_json});"
+      @execution += "meteorStrike.execute(#{id.to_json},#{query.to_json});"
     end
 
-    def executioner
+    def executioner(initial_serial_id = 0)
       sweep_timeout = ShootingStar::CONFIG.sweep_timeout
       <<-"EOH"
-        window.meteorStrike_execute = function(id, query){
+        var meteorStrike = window.meteorStrike || new Object;
+        meteorStrike.execute = function(id, query){
+          var channel = #{@channel_path.to_json};
+          var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
+          ms.serialId = ms.serialId || #{initial_serial_id};
           var ms1 = document.getElementById('meteor-strike-1-form');
           var box = ms1 ? ms1.parentNode : document.body;
           var iframe = document.createElement('iframe');
@@ -212,7 +216,8 @@ module ShootingStar
           iframe.onreadystatechange = function(){
             if(this.readyState == 'complete') ready();
           };
-          iframe.src = ['#{@params['execute']}/', id, '?', query].join('');
+          iframe.src = ['#{@params['execute']}/', id, '?', query,
+            '&__s__=', ms.serialId++].join('');
           box.appendChild(iframe);
         };
       EOH
@@ -224,7 +229,7 @@ module ShootingStar
       query += "&" + FormEncoder.encode(:event => :init, :type => :flash)
       event_id = MD5.new("event-init-flash-#{@channel_path}").to_s
       send_data executioner + %Q{
-        meteorStrike_execute(#{event_id.to_json}, #{query.to_json});
+        meteorStrike.execute(#{event_id.to_json}, #{query.to_json});
       } + "\0"
     end
 
@@ -233,7 +238,7 @@ module ShootingStar
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
-      query = @query.sub(%r[\&sig=\d+], '')
+      query = @query.sub(%r[\&sig=\d+], '') + '&__s__=0'
       query += "&" + FormEncoder.encode(:event => :init, :type => :xhr)
       event_id = MD5.new("event-init-xhr-#{@channel_path}").to_s
       heartbeat = @params['heartbeat'].to_i
@@ -246,7 +251,7 @@ module ShootingStar
       <script type="text/javascript" src="#{assets}"></script>
       <script type="text/javascript">
       //<![CDATA[
-      #{executioner}
+      #{executioner(1)}
       var connect = function(reconnect)
       { var body = $H(#{@params.to_json});
         body.__t__ = reconnect ? 'rc' : 'c';

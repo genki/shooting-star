@@ -43,11 +43,22 @@
       var ms = meteorStrike[channel] = meteorStrike[channel] || new Object;
       ms.getTags = function(){return TAGS};
       ms.getUid = function(){return UID};
-      ms.execute = function(js){eval(js)};
+      ms.executionQueue = {};
+      ms.executionCounter = 0;
+      ms.evaluate = function(js, serialId){
+        ms.executionQueue[serialId] = js;
+        if(serialId == ms.executionCounter){
+          while(js = ms.executionQueue[ms.executionCounter]){
+            eval(js);
+            delete ms.executionQueue[ms.executionCounter];
+            ++ms.executionCounter;
+          }
+        }
+      };
       ms.event = function(params){
         if(params.event == 'init'){
           if(ms.connection) return;
-          if(ms.connecting != params.type) return;
+          if(ms.connecting && ms.connecting != params.type) return;
           ms.connection = params.type;
         }
         (function(){#{options[:event]}})();
@@ -74,7 +85,8 @@
         ms.update(UID, tags.concat(tagsIn || []).uniq());
       };
       setTimeout(ms.connector = function(){
-        if(ms.connection || ms.connecting != 'xhr') return;
+        if(ms.connection) return;
+        if(ms.connecting && ms.connecting != 'xhr') return;
         var form = $("#{iframe_id}-form");
         form.uid.value = #{uid.to_json};
         form.tag.value = #{tag.to_json};
@@ -87,7 +99,7 @@
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
       var ms = meteorStrike[#{channel.to_json}];
       switch(command){
-      case 'execute': ms.execute(args); break;
+      case 'execute': eval(args); break;
       case 'event':
         switch(args){
         case 'connect': // intercept xhr connection

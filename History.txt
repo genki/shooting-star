@@ -1,6 +1,7 @@
 *** 3.2.2 / 2007-08-23
-+ 1 major enhancement:
++ 2 major enhancements:
   + Profiling by RubyProf if CONFIG.profile.
+  + Serialized event execution.
 + 2 minor enhancements:
   + Added new task meteor_strike:update for updating plugin.
   + Refined a code of reconnection in flash client.
@@ -20,7 +21,6 @@
   + Automatic activation/deactivation of flash client.
   + Ported meteor_strike.swf from CS3 to mtasc.
   + Heart beat.
-  - Serialized event execution.
 + 7 minor enhancements:
   + shooting_star.yml is processed by ERB.
   + Updated implementation of observers.
