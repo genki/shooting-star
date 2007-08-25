@@ -104,10 +104,8 @@
         switch(args){
         case 'connect': // intercept xhr connection
           ms.connecting = 'flash';
-          if(ms.connection == 'xhr'){
-            ms.connection = null;
-            Element.remove('#{iframe_id}');
-          }
+          ms.connection = null;
+          Element.remove('#{iframe_id}');
           break;
         }
         break;
