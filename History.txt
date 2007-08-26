@@ -1,7 +1,8 @@
 *** 3.2.2 / 2007-08-23
-+ 2 major enhancements:
++ 3 major enhancements:
   + Profiling by RubyProf if CONFIG.profile.
   + Serialized event execution.
+  + Separated type and phase on connection management.
 + 2 minor enhancements:
   + Added new task meteor_strike:update for updating plugin.
   + Refined a code of reconnection in flash client.

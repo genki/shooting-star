@@ -25,6 +25,7 @@ module ShootingStar
 
     # receive the data sent from client.
     def receive_data(data)
+      puts data
       return if data.length == 0
       return send_policy_file if @data.length == 0 &&
         data == "<policy-file-request/>"
@@ -57,16 +58,17 @@ module ShootingStar
       @channel_path ||= CGI.unescape(channel_path)
       @query = "channel=#{channel_path}&sig=#{@signature}"
       @type = @params['__t__']
+      @phase = @params['__p__']
       # process verb
       if !@type
         make_xhr_connection(path)
       else
-        make_flash_connection if @type == 'f'
         prepare_channel(@channel_path)
         @uid = @@uids[@signature] ||= @params['uid']
         @tag = @@tags[@signature] ||=
           (@params['tag'] || '').split(',').map{|i| CGI.unescape(i)}
-        if !@@servers[@signature] && @type != 'rc'
+        unless @phase == 'reconnect'
+          make_flash_connection if @type == 'flash'
           notify(:event => :enter, :uid => @uid, :tag => @tag)
           log{"Connected: #{@uid}"}
         end
@@ -114,13 +116,13 @@ module ShootingStar
       return false if @unbound || !@waiting
       @executing.each{|id, params| execute(id, params)}
       return false if @execution.empty?
-      return false unless send_data(@type == 'f' ? "#{@execution}\0" :
+      return false unless send_data(@type == 'flash' ? "#{@execution}\0" :
         "HTTP/1.1 200 OK\nContent-Type: text/javascript\n\n#{@execution}")
       @committed_at = Asteroid::now
       @execution = ''
       @executing.clear
       @@executings.delete(@signature)
-      unless @type == 'f'
+      unless @type == 'flash'
         @waiting = nil
         write_and_close
       end
@@ -252,9 +254,10 @@ module ShootingStar
       <script type="text/javascript">
       //<![CDATA[
       #{executioner(1)}
-      var connect = function(reconnect)
-      { var body = $H(#{@params.to_json});
-        body.__t__ = reconnect ? 'rc' : 'c';
+      var connect = function(reconnect){ 
+        var body = $H(#{@params.to_json});
+        body.__t__ = 'xhr';
+        body.__p__ = reconnect ? 'reconnect' : 'connect';
         var request = new Ajax.Request(#{path.to_json},
           {evalScript: true, onComplete: function(xhr){
             setTimeout(function(){connect(true)},

@@ -20,7 +20,7 @@
     :after => %Q[new Effect.Highlight("user-list", {queue: 'end'})])
   meteor_strike "simple_chat/chatroom", :debug => false,
     :uid => session[:name], :tag => session[:tags], :noflash => false,
-    :heartbeat => 90, :event => %Q{
+    :heartbeat => 90, :debug => true, :event => %Q{
       switch(params.event){
       case 'init':
         new Ajax.Updater('chat-list', '/chats/connection', {

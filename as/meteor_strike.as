@@ -13,11 +13,12 @@ class MeteorStrike{
   private var socket:XMLSocket;
   private var connected:Boolean;
   private var heartbeatId:Number;
+  private var phase:String;
 
   function MeteorStrike(mc:MovieClip){
     var host_port = mc.server.split(':');
     host = host_port[0];
-    port = new Number(host_port[1]);
+    port = new Number(host_port[1] || 80);
     interval = mc.interval;
     heartbeat = new Number(mc.heartbeat || 0);
     channel = mc.channel;
@@ -27,6 +28,7 @@ class MeteorStrike{
     baseUri = mc.base_uri
     connected = false;
     heartbeatId = null;
+    phase = 'connect';
   }
 
   function establishConnection(){
@@ -64,16 +66,19 @@ class MeteorStrike{
 
   function startCommunication(){
     var content = [
-      "__t__=f",
+      "__t__=flash&__p__=", phase,
       "&uid=", escape(uid),
       "&tag=", escape(tag),
       "&sig=", escape(sig),
       "&execute=", baseUri, "/meteor/strike"
     ].join("");
-    fscommand("event", "connect");
+    if(phase == 'connect'){
+      fscommand("event", "connect");
+      phase = 'reconnect';
+    }
     socket.send([
       ["POST /", escape(channel), " HTTP/1.1"].join(''),
-      "Host: localhost:8080",
+      ["Host: ", host, ':', port].join(''),
       ["Content-length: ", content.length].join(''),
       "", content
     ].join("\n"));
@@ -92,7 +97,7 @@ class MeteorStrike{
   function log(message:String){
     if(_root.debug){
       var logs = _root.log.text.split("\r").concat(message);
-      _root.log.text = logs.slice(-10).join("\n");
+      _root.log.text = logs.slice(-20).join("\n");
     }
   } 
 
