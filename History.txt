@@ -3,9 +3,10 @@
   + Profiling by RubyProf if CONFIG.profile.
   + Serialized event execution.
   + Separated type and phase on connection management.
-+ 2 minor enhancements:
++ 3 minor enhancements:
   + Added new task meteor_strike:update for updating plugin.
   + Refined a code of reconnection in flash client.
+  + Updated chat generator.
 + 2 minor spec changes:
   + Added lib/version.rb.
   + Added :without_logging to shooting_star.yml
