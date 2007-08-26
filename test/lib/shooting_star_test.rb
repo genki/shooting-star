@@ -79,7 +79,8 @@ class ShootingStarTest < Test::Unit::TestCase
       flag = true
     end
     Thread.pass until flag
-    assert_nil observer.params
+    assert_not_nil observer.params
+    assert_equal :enter, observer.params[:event]
     flag = false
     Thread.new do
       send(client2, "POST", "test/channel", "#{@query2}&__t__=c")
