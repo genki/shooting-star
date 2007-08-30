@@ -8,6 +8,7 @@ class MeteorStrike{
   var tag:String;
   var sig:String;
   var baseUri:String;
+  var index:Number;
 
   private var mc:MovieClip;
   private var socket:XMLSocket;
@@ -29,6 +30,7 @@ class MeteorStrike{
     connected = false;
     heartbeatId = null;
     phase = 'connect';
+    index = mc.meteor_strike_id;
   }
 
   function establishConnection(){
@@ -49,7 +51,7 @@ class MeteorStrike{
       _global.setTimeout(self, 'makeConnection', 1000);
     };
     socket.onData = function(data:String){
-      self.log(["onData: ", data.length, ' byte(s)'].join(''));
+      self.log(["onData: ", data].join(''));
       self.setHeartbeat();
       fscommand("execute", data);
     };

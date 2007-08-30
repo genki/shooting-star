@@ -18,7 +18,7 @@ module MeteorStrike
         cc += 'post-check=0, pre-check=0'
         controller.headers['Cache-Control'] = cc
       end
-      @meteor_strike ||= 0 and @meteor_strike += 1
+      @meteor_strike = controller.install_meteor_strike
       config = Meteor::config
       server = Meteor::server
       shooting_star_uri = "#{server}/#{channel}"
@@ -27,7 +27,8 @@ module MeteorStrike
         shooting_star_uri = [subdomain, shooting_star_uri].join('.')
       end
       uri = url_for(:only_path => false).split('/')[0..2].join('/')
-      uid = options[:uid] ? CGI.escape(options[:uid].to_s) : ''
+      uid = options[:uid] ? options[:uid].to_s : ''
+      escaped_uid = CGI.escape(uid)
       tags = options[:tag] || []
       tag = tags.map{|i| CGI.escape(i.to_s)}.join(',')
       update_uri = "#{uri}/meteor/update"
@@ -35,10 +36,10 @@ module MeteorStrike
       sig = "%d%06d" % [now.tv_sec, now.tv_usec]
       iframe_id = "meteor-strike-#{@meteor_strike}"
       host_port = (server.split(':') << '80')[0..1].join(':')
-      flash_vars = ["channel=#{channel}", "tag=#{tag}", "uid=#{uid}",
+      flash_vars = ["channel=#{channel}", "tag=#{tag}", "uid=#{escaped_uid}",
         "sig=#{sig}", "base_uri=#{uri}", "server=#{host_port}",
-        "heartbeat=#{options[:heartbeat]}", "debug=#{options[:debug].to_json}"
-      ].join('&')
+        "heartbeat=#{options[:heartbeat]}", "debug=#{options[:debug].to_json}",
+        "meteor_strike_id=#{@meteor_strike}"].join('&')
       unless options[:noflash]
         @flash_html = render :use_full_path => false,
           :file => File.join(PLUGIN_ROOT, 'views/flash.rhtml'),

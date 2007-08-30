@@ -27,6 +27,7 @@ vendor/plugins/meteor_strike/lib
 vendor/plugins/meteor_strike/lib/meteor_strike.rb
 vendor/plugins/meteor_strike/lib/meteor_strike
 vendor/plugins/meteor_strike/lib/meteor_strike/helper.rb
+vendor/plugins/meteor_strike/lib/meteor_strike/controller.rb
 vendor/plugins/meteor_strike/views
 vendor/plugins/meteor_strike/views/xhr.rhtml
 vendor/plugins/meteor_strike/views/flash.rhtml

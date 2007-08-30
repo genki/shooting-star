@@ -228,7 +228,7 @@ module ShootingStar
     def make_flash_connection
       query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(:event => :init, :type => :flash)
-      event_id = MD5.new("event-init-flash-#{@channel_path}").to_s
+      event_id = MD5.new("event-init-flash-#{Asteroid::now}").to_s
       send_data executioner + %Q{
         meteorStrike.execute(#{event_id.to_json}, #{query.to_json});
       } + "\0"
@@ -241,7 +241,7 @@ module ShootingStar
       assets.query = assets.fragment = nil
       query = @query.sub(%r[\&sig=\d+], '') + '&__s__=0'
       query += "&" + FormEncoder.encode(:event => :init, :type => :xhr)
-      event_id = MD5.new("event-init-xhr-#{@channel_path}").to_s
+      event_id = MD5.new("event-init-xhr-#{Asteroid::now}").to_s
       heartbeat = @params['heartbeat'].to_i
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +
       <<-"EOH"
@@ -257,13 +257,13 @@ module ShootingStar
         var body = $H(#{@params.to_json});
         body.__t__ = 'xhr';
         body.__p__ = reconnect ? 'reconnect' : 'connect';
-        var request = new Ajax.Request(#{path.to_json},
-          {evalScript: true, onComplete: function(xhr){
+        var request = new Ajax.Request(#{path.to_json}, {evalScript: true,
+          onComplete: function(xhr){
             setTimeout(function(){connect(true)},
               xhr.getResponseHeader('Content-Type') ? 0 : 3000);
           }, postBody: body.toQueryString()});
-        var disconnect = function()
-        { request.options.onComplete = function(){};
+        var disconnect = function(){
+          request.options.onComplete = function(){};
           request.transport.abort();
         };
         Event.observe(window, 'unload', disconnect);

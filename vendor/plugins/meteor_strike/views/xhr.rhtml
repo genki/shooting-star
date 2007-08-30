@@ -11,6 +11,7 @@
     <input name="tag" /><input name="uid" /><input name="sig" />
     <input name="heartbeat" value="<%= options[:heartbeat] %>" />
   </form>
+  <div id="<%= iframe_id %>-flash"></div>
   <%= javascript_tag %Q{
     var meteorStrike = meteorStrike || $H();
     meteorStrike.getFlashVersion = function(){
@@ -84,22 +85,27 @@
         var tags = Array.prototype.without.apply(TAGS, tagsOut);
         ms.update(UID, tags.concat(tagsIn || []).uniq());
       };
-      setTimeout(ms.connector = function(){
-        if(ms.connection) return;
-        if(ms.connecting && ms.connecting != 'xhr') return;
-        var form = $("#{iframe_id}-form");
-        form.uid.value = #{uid.to_json};
-        form.tag.value = #{tag.to_json};
-        form.sig.value = #{sig.to_json};
-        var timerId = setTimeout(ms.connector, 3000);
-        $('#{iframe_id}').onload = function(){clearTimeout(timerId)};
-        form.submit();
-      }, meteorStrike.getFlashVersion() >= 6 ? 3000 : 0);
+      Event.observe(window, 'load', function(){
+        setTimeout(ms.connector = function(){
+          if(ms.connection) return;
+          if(ms.connecting && ms.connecting != 'xhr') return;
+          var form = $("#{iframe_id}-form");
+          form.uid.value = #{uid.to_json};
+          form.tag.value = #{tag.to_json};
+          form.sig.value = #{sig.to_json};
+          var timerId = setTimeout(ms.connector, 3000);
+          $('#{iframe_id}').onload = function(){clearTimeout(timerId)};
+          form.submit();
+        }, meteorStrike.getFlashVersion() >= 6 ? 3000 : 0);
+      });
     })();
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
       var ms = meteorStrike[#{channel.to_json}];
       switch(command){
-      case 'execute': eval(args); break;
+      case 'execute':
+        if(ms.connection == 'flash' || ms.connecting == 'flash') eval(args);
+        else if($('#{iframe_id}-flash')) Element.remove('#{iframe_id}-flash');
+        break;
       case 'event':
         switch(args){
         case 'connect': // intercept xhr connection
@@ -111,20 +117,8 @@
         break;
       }
     }
-    if(navigator.appName && navigator.appName.indexOf("Microsoft") != -1 &&
-      navigator.userAgent.indexOf("Windows") != -1 &&
-      navigator.userAgent.indexOf("Windows 3.1") == -1){
-      document.write([
-        '<script language="VBScript"\\>',
-        'On Error Resume Next',
-        ['Sub meteor_strike_', #{@meteor_strike},
-         '_FSCommand(ByVal command, ByVal args)'].join(''),
-        ['  Call meteor_strike_', #{@meteor_strike},
-         '_DoFSCommand(command, args)'].join(''),
-        'End Sub', '</script\\>'].join(#{"\n".to_json}));
-    }
     if(meteorStrike.getFlashVersion() >= 6){
-      document.write(#{@flash_html.to_json});
+      $('#{iframe_id}-flash').innerHTML = #{@flash_html.to_json};
     }
   } %>
 </div>
