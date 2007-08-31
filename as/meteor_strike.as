@@ -47,13 +47,13 @@ class MeteorStrike{
     socket.onClose = function(){
       self.log(["onClose: "].join(''));
       self.connected = false;
-      fscommand("event", "close");
+      self.execute("event", "close");
       _global.setTimeout(self, 'makeConnection', 1000);
     };
     socket.onData = function(data:String){
-      self.log(["onData: ", data].join(''));
+      self.log(["onData: ", data.slice(30)].join(''));
       self.setHeartbeat();
-      fscommand("execute", data);
+      self.execute("execute", data);
     };
     makeConnection();
   }
@@ -75,7 +75,7 @@ class MeteorStrike{
       "&execute=", baseUri, "/meteor/strike"
     ].join("");
     if(phase == 'connect'){
-      fscommand("event", "connect");
+      execute("event", "connect");
       phase = 'reconnect';
     }
     socket.send([
@@ -84,6 +84,10 @@ class MeteorStrike{
       ["Content-length: ", content.length].join(''),
       "", content
     ].join("\n"));
+  }
+
+  function execute(command:String, args:String){
+    getURL(['FSCommand:', command].join(''), escape(args));
   }
 
   function setHeartbeat(){

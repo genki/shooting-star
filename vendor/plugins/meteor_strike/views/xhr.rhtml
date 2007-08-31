@@ -101,6 +101,7 @@
     })();
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
       var ms = meteorStrike[#{channel.to_json}];
+      args = unescape(args);
       switch(command){
       case 'execute':
         if(ms.connection == 'flash' || ms.connecting == 'flash') eval(args);

@@ -1,3 +1,7 @@
+*** 3.2.3 / 2007-08-26
++ 1 minor bugfix:
+  + Made meteor_strike work in flash6 correctly.
+
 *** 3.2.2 / 2007-08-26
 + 3 major enhancements:
   + Profiling by RubyProf if CONFIG.profile.

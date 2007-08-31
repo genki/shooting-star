@@ -27,7 +27,7 @@ module ShootingStar
     def receive_data(data)
       return if data.length == 0
       return send_policy_file if @data.length == 0 &&
-        data == "<policy-file-request/>"
+        data == "<policy-file-request />"
       @data += data
       header, body = @data.split(/\n\n|\r\r|\n\r\n\r|\r\n\r\n/, 2)
       return unless body
