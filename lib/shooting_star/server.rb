@@ -27,7 +27,7 @@ module ShootingStar
     def receive_data(data)
       return if data.length == 0
       return send_policy_file if @data.length == 0 &&
-        data == "<policy-file-request />"
+        data == "<policy-file-request/>"
       @data += data
       header, body = @data.split(/\n\n|\r\r|\n\r\n\r|\r\n\r\n/, 2)
       return unless body
@@ -210,6 +210,7 @@ module ShootingStar
           };
           var timer = setTimeout(remove, #{sweep_timeout});
           var ready = function(){
+            ready = function(){};
             clearTimeout(timer);
             setTimeout(remove, 0);
           };
@@ -218,7 +219,7 @@ module ShootingStar
             if(this.readyState == 'complete') ready();
           };
           iframe.src = ['#{@params['execute']}/', id, '?', query,
-            '&__s__=', ms.serialId++].join('');
+            '#', ms.serialId++].join('');
           box.appendChild(iframe);
         };
       EOH

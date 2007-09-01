@@ -9,7 +9,7 @@
     var javascript = #{@javascript.to_json};
     var execute = function(){
       var ms = parent.parent.meteorStrike[channel];
-      if(ms) ms.evaluate(javascript, #{params[:__s__]});
+      if(ms) ms.evaluate(javascript, location.hash.slice(1));
       else setTimeout(evaluate, 0);
     };
     execute();

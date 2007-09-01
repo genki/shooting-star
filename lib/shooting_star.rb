@@ -17,7 +17,7 @@ module ShootingStar
     :daemon => false,
     :slient => false,
     :session_timeout => 10.0,
-    :sweep_timeout => 30_000)
+    :sweep_timeout => 180_000)
 
   def self.configure(options = {})
     if @log_file

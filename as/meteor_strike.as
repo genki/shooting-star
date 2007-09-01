@@ -15,6 +15,7 @@ class MeteorStrike{
   private var connected:Boolean;
   private var heartbeatId:Number;
   private var phase:String;
+  private var connectorId:Number;
 
   function MeteorStrike(mc:MovieClip){
     var host_port = mc.server.split(':');
@@ -48,10 +49,11 @@ class MeteorStrike{
       self.log(["onClose: "].join(''));
       self.connected = false;
       self.execute("event", "close");
-      _global.setTimeout(self, 'makeConnection', 1000);
+      self.resetConnector();
+      self.connectorId = setInterval(self, 'makeConnection', 1000);
     };
     socket.onData = function(data:String){
-      self.log(["onData: ", data.slice(30)].join(''));
+      self.log(["onData: ", data.slice(0, 40)].join(''));
       self.setHeartbeat();
       self.execute("execute", data);
     };
@@ -59,12 +61,13 @@ class MeteorStrike{
   }
 
   function makeConnection(){
+    resetConnector();
     if(connected) return;
     log(["makeConnection: ", host, ':', port].join(''));
     if(!socket.connect(host, port)){
-      _global.setTimeout(this, 'makeConnection', interval || 3000);
+      connectorId = setInterval(this, 'makeConnection', interval || 3000);
     }
-  };
+  }
 
   function startCommunication(){
     var content = [
@@ -86,7 +89,14 @@ class MeteorStrike{
     ].join("\n"));
   }
 
+  function resetConnector(){
+    if(!connectorId) return;
+    clearInterval(connectorId);
+    connectorId = null;
+  }
+
   function execute(command:String, args:String){
+    log(['FSCommand:', command].join(''));
     getURL(['FSCommand:', command].join(''), escape(args));
   }
 
