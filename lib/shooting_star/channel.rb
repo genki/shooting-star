@@ -24,8 +24,16 @@ module ShootingStar
         need_event_handling = observers.nil? || observers.empty?
       end
       if event.nil? || need_event_handling
-        @waiters.each do |signature, server|
-          server.commit if server.respond(id, params)
+        if params[:except]
+          exception = [params[:except]].flatten
+          @waiters.each do |signature, server|
+            next if exception.include?(server.uid)
+            server.commit if server.respond(id, params)
+          end
+        else
+          @waiters.each do |signature, server|
+            server.commit if server.respond(id, params)
+          end
         end
       end
     end

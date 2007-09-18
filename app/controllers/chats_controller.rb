@@ -18,6 +18,7 @@ class ChatsController < ApplicationController
     @chat = Chat.new(:name => params[:chat_name],
       :message => params[:chat_message])
 
+    rjs = ''
     if @chat.save
       contents = render_component_as_string :controller => 'chats',
         :action => 'show', :id => @chat.id
@@ -26,19 +27,19 @@ class ChatsController < ApplicationController
       end
       tags = params[:chat_tag].split(/\s+/)
       if session[:name] != @chat.name || session[:tags] != tags
-        session[:name] = @chat.name
-        session[:tags] = tags
-        render :update do |page|
-          page << %Q{
-            meteorStrike['simple_chat/chatroom'].update(
-              #{@chat.name.to_json}, #{tags.to_json}
-            );
-          }
-        end
+        rjs << %Q{
+          meteorStrike['simple_chat/chatroom'].update(
+            #{@chat.name.to_json}, #{tags.to_json}
+          );
+        }
       end
-      Meteor::shoot 'simple_chat/chatroom', javascript, tags
+      Meteor::shoot 'simple_chat/chatroom',
+        javascript, tags, :except => session[:name]
+      rjs << javascript
+      session[:name] = @chat.name
+      session[:tags] = tags
     end
-    render :nothing => true unless performed?
+    render(:update){|page| page << rjs}
   end
 
   def connection

@@ -1,8 +1,10 @@
-*** 3.2.3 / 2007-08-31
+*** 3.2.3 / 2007-09-18
++ 1 major enhancement:
+  + Implemented new option :except for Meteor::shoot.
 + 3 minor bugfix:
   + Made meteor_strike work in flash6 correctly.
   + Using setInterval instead of _global.setTimeout for flash6.
-  + Changed a way of handing over serial id.
+  + Changed way of handing over serial id.
 
 *** 3.2.2 / 2007-08-26
 + 3 major enhancements:
