@@ -5,16 +5,16 @@
 ActiveRecord::Schema.define(:version => 2) do
 
   create_table "chats", :force => true do |t|
-    t.column "name",       :string
-    t.column "message",    :text
-    t.column "password",   :string
-    t.column "created_at", :datetime
+    t.string   "name"
+    t.text     "message"
+    t.string   "password"
+    t.datetime "created_at"
   end
 
   create_table "meteors", :force => true do |t|
-    t.column "javascript", :text
-    t.column "limit",      :integer
-    t.column "created_at", :datetime
+    t.text     "javascript"
+    t.integer  "limit"
+    t.datetime "created_at"
   end
 
 end

@@ -34,7 +34,7 @@ class ChatsController < ApplicationController
         }
       end
       Meteor::shoot 'simple_chat/chatroom',
-        javascript, tags, :except => session[:name]
+        javascript, tags, :except => [session[:name], @chat.name]
       rjs << javascript
       session[:name] = @chat.name
       session[:tags] = tags
