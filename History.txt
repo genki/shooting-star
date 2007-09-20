@@ -1,3 +1,7 @@
+*** 3.2.4 / 2007-09-20
++ 1 major spec change:
+  + Using ExternalInterface instead of fscommand.
+
 *** 3.2.3 / 2007-09-18
 + 1 major enhancement:
   + Implemented new option :except for Meteor::shoot.

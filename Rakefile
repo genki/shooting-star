@@ -66,7 +66,7 @@ desc 'make swf file'
 task :swf => 'public/meteor_strike.swf'
 
 file 'public/meteor_strike.swf' => 'as/meteor_strike.as' do
-  sh ['mtasc -version 6 -header 300:300:30',
+  sh ['mtasc -version 8 -header 300:300:30',
       '-swf public/meteor_strike.swf',
       '-main as/meteor_strike.as'].join(' ')
 end

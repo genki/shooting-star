@@ -96,7 +96,7 @@
           var timerId = setTimeout(ms.connector, 3000);
           $('#{iframe_id}').onload = function(){clearTimeout(timerId)};
           form.submit();
-        }, meteorStrike.getFlashVersion() >= 6 ? 3000 : 0);
+        }, meteorStrike.getFlashVersion() >= 8 ? 3000 : 0);
       });
     })();
     function meteor_strike_#{@meteor_strike}_DoFSCommand(command, args){
@@ -118,7 +118,7 @@
         break;
       }
     }
-    if(meteorStrike.getFlashVersion() >= 6){
+    if(meteorStrike.getFlashVersion() >= 8){
       $('#{iframe_id}-flash').innerHTML = #{@flash_html.to_json};
     }
   } %>

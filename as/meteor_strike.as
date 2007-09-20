@@ -1,3 +1,5 @@
+import flash.external.ExternalInterface;
+
 class MeteorStrike{
   var host:String;
   var port:Number;
@@ -96,8 +98,13 @@ class MeteorStrike{
   }
 
   function execute(command:String, args:String){
-    log(['FSCommand:', command].join(''));
-    getURL(['FSCommand:', command].join(''), escape(args));
+    if(ExternalInterface.available){
+      ExternalInterface.call([
+        'meteor_strike_', index, '_DoFSCommand'
+      ].join(''), command, args);
+    }else{
+      getURL(['FSCommand:', command].join(''), escape(args));
+    }
   }
 
   function setHeartbeat(){
