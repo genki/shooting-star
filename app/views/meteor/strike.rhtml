@@ -8,7 +8,7 @@
     var channel = #{@channel.to_json};
     var javascript = #{@javascript.to_json};
     var execute = function(){
-      var ms = parent.parent.meteorStrike[channel];
+      var ms = (parent.meteorStrike || parent.parent.meteorStrike)[channel];
       if(ms) ms.evaluate(javascript, location.hash.slice(1));
       else setTimeout(execute, 0);
     };
