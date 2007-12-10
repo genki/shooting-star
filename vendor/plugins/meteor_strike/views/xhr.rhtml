@@ -45,8 +45,11 @@
       ms.getTags = function(){return TAGS};
       ms.getUid = function(){return UID};
       ms.executionQueue = {};
-      ms.executionCounter = 0;
+      ms.executionCounter = null;
       ms.evaluate = function(js, serialId){
+        if(ms.executionCounter == null){
+          ms.executionCounter = serialId;
+        }
         ms.executionQueue[serialId] = js;
         if(serialId == ms.executionCounter){
           while(js = ms.executionQueue[ms.executionCounter]){
@@ -54,6 +57,14 @@
             delete ms.executionQueue[ms.executionCounter];
             ++ms.executionCounter;
           }
+        }else{
+          setTimeout(function(){
+            if(js = ms.executionQueue[this]){
+              eval(js);
+              delete ms.executionQueue[this];
+              ms.executionCounter = null;
+            }
+          }.bind(serialId), 3000);
         }
       };
       ms.event = function(params){
