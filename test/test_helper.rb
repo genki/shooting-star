@@ -31,3 +31,9 @@ class Test::Unit::TestCase
 
   # Add more helper methods to be used by all tests here...
 end
+
+class ActionController::TestRequest
+  def user_agent
+    env['HTTP_USER_AGENT'] || self.class.to_s
+  end
+end
