@@ -3,7 +3,7 @@ class ChatsController < ApplicationController
   caches_page :show
 
   def index
-    @chats = Chat.find(:all, :limit => 50, :order => 'created_at DESC')
+    @chats = Chat.find(:all, :limit => 10, :order => 'created_at DESC')
   end
 
   def show

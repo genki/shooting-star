@@ -1,2 +1,3 @@
-PID=`netstat -l -n -p | grep 4000 | ruby -e "puts ARGF.gets.split(/\s+/)[6].split('/')[0]"`
+./script/process/reaper -a kill
+PID=`cat tmp/pids/lighttpd.pid`
 kill -9 $PID

@@ -25,6 +25,7 @@ module ShootingStar
 
     # receive the data sent from client.
     def receive_data(data)
+      puts data
       return if data.length == 0
       return send_policy_file if @data.length == 0 &&
         data == "<policy-file-request/>"
@@ -240,8 +241,9 @@ module ShootingStar
       assets = URI.parse(@params['execute'])
       assets.path = '/javascripts/prototype.js'
       assets.query = assets.fragment = nil
-      query = @query.sub(%r[\&sig=\d+], '') + '&__s__=0'
+      query = @query.sub(%r[\&sig=\d+], '')
       query += "&" + FormEncoder.encode(:event => :init, :type => :xhr)
+      query += '#0'
       event_id = MD5.new("event-init-xhr-#{Asteroid::now}").to_s
       heartbeat = @params['heartbeat'].to_i
       send_data "HTTP/1.1 200 OK\nContent-Type: text/html\n\n" +

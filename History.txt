@@ -1,3 +1,7 @@
+*** 3.2.5 / 2007-12-10
++ 1 major enhancement
+  + Implemented user agent detection for ipod/iphone.
+
 *** 3.2.4 / 2007-09-20
 + 1 major spec change:
   + Using ExternalInterface instead of fscommand.

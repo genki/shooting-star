@@ -18,6 +18,9 @@ module MeteorStrike
         cc += 'post-check=0, pre-check=0'
         controller.headers['Cache-Control'] = cc
       end
+      if !!request.user_agent[/iPhone|iPod/]
+        options[:noflash] = true
+      end
       @meteor_strike = controller.install_meteor_strike
       config = Meteor::config
       server = Meteor::server
