@@ -25,7 +25,6 @@ module ShootingStar
 
     # receive the data sent from client.
     def receive_data(data)
-      puts data
       return if data.length == 0
       return send_policy_file if @data.length == 0 &&
         data == "<policy-file-request/>"
