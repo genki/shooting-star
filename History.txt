@@ -1,3 +1,7 @@
+*** 3.2.6 / 2007-XX-XX
++ 1 minor spec change
+  + meteorStrike.update(uid = UID, tags = TAGS).
+
 *** 3.2.5 / 2007-12-10
 + 1 major enhancement
   + Implemented user agent detection for ipod/iphone.

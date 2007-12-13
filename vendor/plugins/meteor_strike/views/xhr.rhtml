@@ -80,7 +80,7 @@
           channel: channel, uid: uid || UID,
           tag: encodeTags(tags || TAGS), sig: #{sig.to_json}
         }).toQueryString(), asynchronous: true});
-        UID = uid, TAGS = tags;
+        UID = uid || UID, TAGS = tags || TAGS;
       };
       ms.tuneIn = function(tags){
         ms.update(UID, TAGS.concat(tags || []).uniq());
