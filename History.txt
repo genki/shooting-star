@@ -1,4 +1,6 @@
-*** 3.2.6 / 2007-XX-XX
+*** 3.2.6 / 2007-12-27
++ 1 major enhancement
+  + Fixed meteorStrike to work with prototype.js 1.6 correctly.
 + 1 minor spec change
   + meteorStrike.update(uid = UID, tags = TAGS).
 

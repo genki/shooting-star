@@ -257,8 +257,9 @@ module ShootingStar
       #{executioner(1)}
       var connect = function(reconnect){ 
         var body = $H(#{@params.to_json});
-        body.__t__ = 'xhr';
-        body.__p__ = reconnect ? 'reconnect' : 'connect';
+        if(!body.set) body.set = function(k, v){return this[k] = v}
+        body.set('__t__', 'xhr');
+        body.set('__p__', reconnect ? 'reconnect' : 'connect');
         var request = new Ajax.Request(#{path.to_json}, {evalScript: true,
           onComplete: function(xhr){
             setTimeout(function(){connect(true)},

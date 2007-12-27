@@ -1,0 +1,15 @@
+Trident
+=======
+
+tail -f, autotest and script/console at once.
+
+
+Example
+=======
+
+rake trident
+
+> Trident.reload # => reload autotest
+> exit # => kill all processes and exit
+
+Copyright (c) 2007 Genki Takiuchi, released under the MIT license

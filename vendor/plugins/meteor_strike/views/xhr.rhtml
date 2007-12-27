@@ -13,7 +13,8 @@
   </form>
   <div id="<%= iframe_id %>-flash"></div>
   <%= javascript_tag %Q{
-    var meteorStrike = meteorStrike || $H();
+    window.meteorStrike_installed = true;
+    window.meteorStrike = window.meteorStrike || new Object;
     meteorStrike.getFlashVersion = function(){
       if(#{options[:noflash].to_json}) return 0;
       var version = 0, ua = navigator.userAgent;
