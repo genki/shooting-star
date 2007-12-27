@@ -1,6 +1,7 @@
 class ChatsController < ApplicationController
   layout 'chats', :only => [:index]
   caches_page :show
+  skip_before_filter :verify_authenticity_token
 
   def index
     @chats = Chat.find(:all, :limit => 10, :order => 'created_at DESC')

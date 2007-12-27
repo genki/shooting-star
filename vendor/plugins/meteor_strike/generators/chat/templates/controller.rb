@@ -1,5 +1,6 @@
 class <%= class_name %>Controller < ApplicationController
   layout '<%= file_name %>', :only => :index
+  skip_before_filter :verify_authenticity_token
 
   def index
     session[:name] ||= 'guest'
