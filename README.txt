@@ -1,7 +1,7 @@
 shooting_star
-    by Genki Takiuchi <takiuchi@drecom.co.jp>
-    http://rails.office.drecom.jp/takiuchi/
-    http://labs.drecom.jp/
+    by Genki Takiuchi <genki@s21g.com>
+    http://blog.s21g.com/genki
+    http://blog.s21g.com/takiuchi
 
 == DESCRIPTION:
 
