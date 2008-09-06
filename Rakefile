@@ -15,8 +15,8 @@ namespace :gem do
   Hoe.new('shooting_star', ShootingStar::VERSION) do |hoe|
 
     hoe.author = 'Genki Takiuchi'
-    hoe.email = 'takiuchi@drecom.co.jp'
-    hoe.description = 'Comet server.'
+    hoe.email = 'genki@s21g.com'
+    hoe.description = 'A comet server.'
     hoe.rubyforge_name = 'shooting-star'
     hoe.summary = hoe.paragraphs_of('README.txt', 2)[0]
     hoe.description = hoe.paragraphs_of('README.txt', 2..5).join("\n\n")

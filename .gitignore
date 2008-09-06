@@ -1,2 +1,5 @@
 ext
 .rake_tasks
+db/*.sqlite3
+log
+tmp
