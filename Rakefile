@@ -12,7 +12,7 @@ namespace :gem do
   $: << './ext'
   require 'shooting_star/version'
 
-  Hoe.new('shooting_star', ShootingStar::VERSION) do |hoe|
+  hoe = Hoe.new('shooting_star', ShootingStar::VERSION) do |hoe|
 
     hoe.author = 'Genki Takiuchi'
     hoe.email = 'genki@s21g.com'
@@ -31,6 +31,11 @@ namespace :gem do
         '--exclude', 'ext/asteroid',
         'README.txt']
     }
+  end
+
+  desc 'generate gem spec'
+  task :gemspec do
+    open('shooting-star.gemspec', 'w').write hoe.spec.to_ruby
   end
 end
 
