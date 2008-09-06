@@ -1,3 +1,10 @@
+*** 3.2.7 / 2007-12-27
+
+- Tested for Chrome. It was succeeded.
+- Changed rails version of the example application to 2.1.1.
+- Added the gemspec file for the GitHub.
+- Changed format of this file.
+
 *** 3.2.6 / 2007-12-27
 + 1 major enhancement
   + Fixed meteorStrike to work with prototype.js 1.6 correctly.
